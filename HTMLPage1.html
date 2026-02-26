@@ -1,0 +1,110 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sigma Fun | Grind Mode</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root { --bg: #0b0b0b; --text: #ffffff; --accent: #00ff41; --card-bg: #1a1a1a; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }
+        header { text-align: center; margin: 40px 0; }
+        h1 { font-size: clamp(3rem, 10vw, 5rem); font-weight: 900; margin: 0; background: linear-gradient(to bottom, #fff, #444); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .container { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; width: 100%; max-width: 1200px; }
+        .card { background: var(--card-bg); border-radius: 24px; padding: 25px; border: 1px solid #333; transition: 0.3s; position: relative; overflow: hidden; }
+        .card:hover { border-color: var(--accent); transform: translateY(-5px); }
+        .game-area { margin-top: 15px; height: 180px; display: flex; flex-direction: column; justify-content: center; align-items: center; border-top: 1px solid #333; }
+        button { background: var(--text); color: #000; border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 10px; }
+        button:hover { background: var(--accent); }
+        canvas { background: #000; border-radius: 10px; cursor: crosshair; }
+        #stonks { font-size: 2rem; font-weight: bold; }
+        .green { color: #00ff41; } .red { color: #ff4141; }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>SIGMA FUN</h1>
+    <p>Minimalismo, disciplina y código.</p>
+</header>
+
+<div class="container">
+    <div class="card">
+        <h3>Sigma Clicker</h3>
+        <p>Genera capital ficticio sin parar.</p>
+        <div class="game-area">
+            <div id="coin" style="font-size: 3rem; cursor:pointer;" onclick="addCoin()">💎</div>
+            <p>Net Worth: $<span id="counter">0</span></p>
+        </div>
+    </div>
+
+    <div class="card">
+        <h3>Stonks Simulator</h3>
+        <p>¿Subirá o bajará? El mercado no espera.</p>
+        <div class="game-area">
+            <div id="stonks" class="green">$1,000</div>
+            <p id="trend">Tendencia: Lateral</p>
+        </div>
+    </div>
+
+    <div class="card">
+        <h3>Sigma Art</h3>
+        <p>Dibuja tu destino (con el ratón).</p>
+        <div class="game-area">
+            <canvas id="paintCanvas" width="250" height="150" onmousemove="draw(event)"></canvas>
+            <button onclick="clearCanvas()">Limpiar</button>
+        </div>
+    </div>
+
+    <div class="card">
+        <h3>Velocidad de Reacción</h3>
+        <p>Un Sigma siempre está alerta.</p>
+        <div class="game-area">
+            <div id="box" style="width:50px; height:50px; background:var(--accent); cursor:pointer;" onclick="hitBox()"></div>
+            <p>Puntos: <span id="score">0</span></p>
+        </div>
+    </div>
+</div>
+
+<script>
+    // 1. Clicker
+    let count = 0;
+    function addCoin() { count += 100; document.getElementById('counter').innerText = count.toLocaleString(); }
+
+    // 2. Stonks
+    let money = 1000;
+    setInterval(() => {
+        let change = Math.floor(Math.random() * 200) - 100;
+        money += change;
+        const el = document.getElementById('stonks');
+        el.innerText = `$${money.toLocaleString()}`;
+        el.className = change >= 0 ? 'green' : 'red';
+        document.getElementById('trend').innerText = change >= 0 ? "Tendencia: Bullish" : "Tendencia: Bearish";
+    }, 2000);
+
+    // 3. Canvas Draw
+    const canvas = document.getElementById('paintCanvas');
+    const ctx = canvas.getContext('2d');
+    function draw(e) {
+        if (e.buttons !== 1) return;
+        ctx.fillStyle = "#00ff41";
+        ctx.beginPath();
+        const rect = canvas.getBoundingClientRect();
+        ctx.arc(e.clientX - rect.left, e.clientY - rect.top, 2, 0, Math.PI*2);
+        ctx.fill();
+    }
+    function clearCanvas() { ctx.clearRect(0, 0, canvas.width, canvas.height); }
+
+    // 4. Reacción
+    let score = 0;
+    function hitBox() {
+        score++;
+        document.getElementById('score').innerText = score;
+        const box = document.getElementById('box');
+        box.style.marginTop = Math.random() * 50 + "px";
+        box.style.marginLeft = (Math.random() * 100 - 50) + "px";
+    }
+</script>
+
+</body>
+</html>
