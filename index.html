@@ -3,191 +3,262 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sigma Fun | Ultimate Edition</title>
+    <title>Sigma Fun | The Ultimate Grind</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
-        :root { --bg: #050505; --text: #ffffff; --accent: #00ff41; --card-bg: #111111; }
-        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }
-        h1 { font-size: clamp(2rem, 8vw, 4rem); font-weight: 900; margin: 20px 0; background: linear-gradient(to right, #fff, #444); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        :root { --bg: #050505; --text: #ffffff; --accent: #00ff41; --card-bg: #111; --border: #222; }
+        * { box-sizing: border-box; transition: all 0.2s ease; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 10px; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
         
-        .container { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 20px; width: 100%; max-width: 1200px; }
-        .card { background: var(--card-bg); border-radius: 20px; padding: 20px; border: 1px solid #222; position: relative; overflow: hidden; }
-        .card:hover { border-color: var(--accent); }
+        /* Dashboard de Stats */
+        .stats-bar { display: flex; gap: 15px; background: rgba(20,20,20,0.8); backdrop-filter: blur(10px); padding: 15px 30px; border-radius: 50px; border: 1px solid var(--border); margin: 20px 0; position: sticky; top: 10px; z-index: 1000; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .stat { display: flex; flex-direction: column; align-items: center; min-width: 80px; }
+        .stat-val { font-weight: 900; color: var(--accent); font-size: 1.2rem; }
+        .stat-label { font-size: 0.6rem; text-transform: uppercase; color: #666; letter-spacing: 1px; }
 
-        /* Estilos Comunes */
-        button { background: var(--text); color: #000; border: none; padding: 10px; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 5px; }
-        button:hover { background: var(--accent); }
-        .green { color: var(--accent); } .red { color: #ff4444; }
+        /* Contenedor Principal */
+        .main-stage { width: 100%; max-width: 1000px; background: var(--card-bg); border-radius: 30px; border: 1px solid var(--border); overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.8); }
+        .tabs { display: flex; background: #000; padding: 5px; gap: 5px; }
+        .tab-btn { flex: 1; padding: 15px; border: none; background: none; color: #555; cursor: pointer; font-weight: 800; border-radius: 20px; font-size: 0.9rem; }
+        .tab-btn.active { color: var(--accent); background: #111; box-shadow: 0 0 15px rgba(0,255,65,0.1); }
 
-        /* 1. Flappy Sigma */
-        #flappy-canvas { background: #000; border: 1px solid #333; width: 100%; height: 200px; display: block; border-radius: 10px; cursor: pointer; }
+        .game-content { padding: 30px; min-height: 500px; display: none; }
+        .game-content.active { display: block; animation: fadeIn 0.3s ease; }
 
-        /* 2. Clicker & Shop */
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Flappy & Editor */
+        #flappyCanvas { background: #000; border: 2px solid #222; width: 100%; border-radius: 20px; cursor: crosshair; }
+        .controls { display: flex; gap: 10px; margin-top: 15px; }
+
+        /* Decisiones */
+        .situation-card { background: #000; padding: 25px; border-radius: 20px; border: 1px solid #222; margin-bottom: 20px; }
+        .option-btn { width: 100%; text-align: left; background: #1a1a1a; color: #fff; border: 1px solid #333; padding: 18px; margin: 10px 0; border-radius: 12px; cursor: pointer; font-size: 1rem; }
+        .option-btn:hover { border-color: var(--accent); background: #222; transform: translateX(5px); }
+
+        /* Widget Lateral Clicker */
+        .clicker-widget { position: fixed; bottom: 30px; right: 30px; background: #111; padding: 20px; border-radius: 25px; border: 1px solid var(--accent); text-align: center; box-shadow: 0 10px 40px rgba(0,0,0,0.6); }
         #sigma-face { font-size: 4rem; cursor: pointer; user-select: none; }
-        .shop-item { background: #000; padding: 10px; margin: 5px 0; border-radius: 8px; display: flex; justify-content: space-between; font-size: 0.8rem; }
+        #sigma-face:active { transform: scale(0.9); }
 
-        /* 3. Decisiones */
-        .option-btn { background: transparent; color: white; border: 1px solid #333; text-align: left; width: 100%; font-size: 0.8rem; margin-top: 5px; }
-        
-        /* 4. Hacker */
-        #hack-screen { background: #000; color: var(--accent); font-family: monospace; height: 80px; overflow: hidden; font-size: 0.7rem; padding: 5px; border: 1px solid #222; }
+        /* Trader */
+        .trader-ui { text-align: center; padding: 40px; }
+        .price-tag { font-size: 4rem; font-weight: 900; margin: 20px 0; }
 
-        /* Logros */
-        .ach-row { font-size: 0.8rem; margin-bottom: 5px; opacity: 0.3; }
-        .unlocked { opacity: 1; color: var(--accent); }
+        button:disabled { opacity: 0.3; cursor: not-allowed; }
+        .green { color: var(--accent); } .red { color: #ff4444; }
     </style>
 </head>
 <body>
 
-<h1>SIGMA FUN</h1>
+<div class="stats-bar">
+    <div class="stat"><span class="stat-val" id="global-money">$0</span><span class="stat-label">Capital</span></div>
+    <div class="stat"><span class="stat-val" id="global-mente">50</span><span class="stat-label">Mente</span></div>
+    <div class="stat"><span class="stat-val" id="global-respeto">50</span><span class="stat-label">Respeto</span></div>
+</div>
 
-<div class="container">
-    
-    <div class="card" style="grid-column: 1 / -1; max-width: 800px; margin: auto; width: 100%;">
-        <h3>🐦 Flappy Sigma</h3>
-        <p>Haz clic para saltar y esquivar el "Hate".</p>
-        <canvas id="flappy-canvas" width="400" height="200"></canvas>
-        <p id="flappy-score">Score: 0</p>
+<div class="main-stage">
+    <div class="tabs">
+        <button class="tab-btn active" onclick="switchTab('decisiones')">Situaciones</button>
+        <button class="tab-btn" onclick="switchTab('flappy')">Flappy Editor</button>
+        <button class="tab-btn" onclick="switchTab('trader')">Trader</button>
     </div>
 
-    <div class="card">
-        <h3>🗿 Clicker Shop</h3>
-        <div style="text-align:center">
-            <div id="sigma-face" onclick="clickSigma()">🗿</div>
-            <h2 id="money-display">$0</h2>
+    <div id="game-decisiones" class="game-content active">
+        <div class="situation-card">
+            <h2 id="q-text" style="margin-top:0">Cargando...</h2>
+            <div id="q-options"></div>
         </div>
-        <div class="shop-item">
-            <span>Mejora Clic ($<span id="c-cost">15</span>)</span>
-            <button onclick="buy('click')">BUY</button>
+        <p style="text-align: center; color: #444; font-size: 0.8rem;">Día <span id="day-count">1</span> del Grind Eterno</p>
+    </div>
+
+    <div id="game-flappy" class="game-content">
+        <h3>🛠️ Constructor de Niveles</h3>
+        <p style="font-size: 0.8rem; color: #666;">MODO EDITOR: Haz clic en la pantalla para poner obstáculos. MODO JUGAR: Click para saltar.</p>
+        <canvas id="flappyCanvas" width="800" height="400"></canvas>
+        <div class="controls">
+            <button onclick="setFlappyMode('play')" id="play-btn">▶️ JUGAR NIVEL</button>
+            <button onclick="setFlappyMode('edit')" style="background:#333; color:#fff;">🛠️ MODO EDITOR</button>
+            <button onclick="resetFlappy()" style="background:#600; color:#fff;">BORRAR MAPA</button>
         </div>
-        <div class="shop-item">
-            <span>Auto-Grind ($<span id="a-cost">100</span>)</span>
-            <button onclick="buy('auto')">BUY</button>
+    </div>
+
+    <div id="game-trader" class="game-content">
+        <div class="trader-ui">
+            <h3>Crypto Sigma Index</h3>
+            <div id="t-price" class="price-tag">$100</div>
+            <p>Activos en cartera: <span id="t-assets" class="green">0</span></p>
+            <div class="controls" style="justify-content: center;">
+                <button onclick="trade('buy')" style="padding: 15px 40px;">COMPRAR</button>
+                <button onclick="trade('sell')" style="padding: 15px 40px; background:#ff4444; color:#fff;">VENDER</button>
+            </div>
         </div>
     </div>
+</div>
 
-    <div class="card">
-        <h3>🧠 Decisiones</h3>
-        <p id="q-text" style="font-size:0.9rem">Cargando...</p>
-        <div id="q-options"></div>
-        <p style="font-size:0.7rem; margin-top:10px;">Respeto: <span id="s-res">50</span> | Mente: <span id="s-men">50</span></p>
-    </div>
-
-    <div class="card">
-        <h3>📈 Trader</h3>
-        <div id="t-price" style="font-size: 2rem; text-align: center;">$100</div>
-        <div style="display:flex; gap:5px;">
-            <button style="flex:1" onclick="trade('buy')">COMPRAR</button>
-            <button style="flex:1; background:#ff4444; color:#fff;" onclick="trade('sell')">VENDER</button>
-        </div>
-        <p>Activos: <span id="t-assets">0</span></p>
-    </div>
-
-    <div class="card">
-        <h3>💻 Terminal</h3>
-        <div id="hack-screen">C:\> _</div>
-        <input type="text" oninput="runHack()" placeholder="Teclea rápido..." style="width:100%; background:#000; color:var(--accent); border:1px solid #333; margin-top:5px;">
-    </div>
-
-    <div class="card">
-        <h3>🏆 Logros</h3>
-        <div id="ach-1" class="ach-row">🗿 Clickeador Novato</div>
-        <div id="ach-2" class="ach-row">💰 Inversionista ($10k)</div>
-        <div id="ach-3" class="ach-row">🐦 Maestro del Aire (10 score)</div>
-        <div id="ach-4" class="ach-row">👑 Rey del Estatus (100 Respeto)</div>
-    </div>
-
+<div class="clicker-widget">
+    <div id="sigma-face" onclick="doClick()">🗿</div>
+    <p id="c-cost-display" style="font-size:0.7rem;">Mejora: $15</p>
+    <button onclick="buyClickUpgrade()" style="font-size:0.7rem; width:100%;">MEJORAR CLIC</button>
 </div>
 
 <script>
-    // --- DATA ---
-    let state = { money: 0, click: 1, auto: 0, costs: [15, 100], res: 50, men: 50, assets: 0, price: 100 };
+    // --- MOTOR DE ESTADO ---
+    let state = JSON.parse(localStorage.getItem('sigmaSave')) || {
+        money: 0, mente: 50, respeto: 50, clickVal: 1, cCost: 15, day: 1,
+        pipes: [], assets: 0, price: 100
+    };
+
+    function save() { localStorage.setItem('sigmaSave', JSON.stringify(state)); updateUI(); }
+
+    function switchTab(tab) {
+        document.querySelectorAll('.game-content, .tab-btn').forEach(el => el.classList.remove('active'));
+        document.getElementById('game-' + tab).classList.add('active');
+        event.currentTarget.classList.add('active');
+    }
 
     // --- CLICKER ---
-    function clickSigma() { state.money += state.click; update(); }
-    function buy(type) {
-        if(type=='click' && state.money>=state.costs[0]) { state.money-=state.costs[0]; state.click++; state.costs[0]*=2; }
-        if(type=='auto' && state.money>=state.costs[1]) { state.money-=state.costs[1]; state.auto+=5; state.costs[1]*=2; }
-        update();
+    function doClick() { state.money += state.clickVal; save(); }
+    function buyClickUpgrade() {
+        if(state.money >= state.cCost) {
+            state.money -= state.cCost; state.clickVal++; state.cCost = Math.floor(state.cCost * 1.8); save();
+        }
     }
-    setInterval(() => { state.money += state.auto; update(); }, 1000);
+
+    // --- 50 SITUACIONES SIGMA ---
+    const situaciones = [
+        {q:"Un 'influencer' te pide colaborar gratis por 'exposición'.", o:[{t:"Ignoras el mensaje (Respeto +10)", r:10, d:0, m:5},{t:"Le cobras el triple (Dinero +50, Respeto +5)", r:5, d:50, m:0},{t:"Aceptas (Respeto -20)", r:-20, d:0, m:-10}]},
+        {q:"Tu PC explota antes de una entrega millonaria.", o:[{t:"La arreglas con un clip y café (Mente +20)", r:10, d:0, m:20},{t:"Lloras (Mente -30, Respeto -10)", r:-10, d:0, m:-30}]},
+        {q:"Ves a tu rival llorando en un callejón.", o:[{t:"Le das un pañuelo y un consejo (Respeto +20)", r:20, d:0, m:10},{t:"Le sacas una foto para el recuerdo (Respeto -50)", r:-50, d:0, m:0}]},
+        {q:"Te ofrecen ser la cara de una bebida energética tóxica.", o:[{t:"Aceptas por el dinero (Dinero +500, Respeto -30)", r:-30, d:500, m:0},{t:"Rechazas, tu cuerpo es un templo (Mente +15)", r:10, d:0, m:15}]},
+        {q:"Un extraño te reta a un duelo de miradas.", o:[{t:"No parpadeas durante 1 hora (Respeto +40)", r:40, d:0, m:-10},{t:"Miras el móvil (Respeto -10)", r:-10, d:0, m:0}]},
+        {q:"Ganas la lotería: $1000.", o:[{t:"Lo inviertes todo (Dinero +2000, Mente +10)", r:5, d:2000, m:10},{t:"Fiesta legendaria (Dinero -1000, Respeto +30)", r:30, d:-1000, m:-20}]},
+        {q:"Alguien te dice que 'el dinero no da la felicidad'.", o:[{t:"Le compras su casa (Respeto +50)", r:50, d:-500, m:0},{t:"Le das la razón y meditas (Mente +20)", r:0, d:0, m:20}]},
+        {q:"Te quedas atrapado en un ascensor con un charlatán.", o:[{t:"Le vendes un curso de silencio (Dinero +20)", r:10, d:20, m:5},{t:"Escuchas y pierdes la cordura (Mente -20)", r:0, d:0, m:-20}]},
+        {q:"Descubres que tu café no tiene cafeína.", o:[{t:"Generas energía por pura voluntad (Mente +30)", r:10, d:0, m:30},{t:"Te duermes en el escritorio (Respeto -20)", r:-20, d:0, m:0}]},
+        {q:"Un hacker intenta entrar en tu cuenta de ahorros.", o:[{t:"Le hackeas tú a él (Dinero +100, Respeto +30)", r:30, d:100, m:10},{t:"Cambias la contraseña a '1234' (Mente -40)", r:-10, d:0, m:-40}]},
+        {q:"Tu gato te mira con juicio.", o:[{t:"Entrenas más duro (Mente +10)", r:0, d:0, m:10},{t:"Le pides perdón (Respeto -5)", r:-5, d:0, m:0}]},
+        {q:"Te ofrecen un trabajo de 9 a 5 'seguro'.", o:[{t:"Huyes al bosque (Mente +15, Respeto +10)", r:10, d:0, m:15},{t:"Aceptas por miedo (Respeto -30, Mente -20)", r:-30, d:50, m:-20}]},
+        {q:"Un fan te pide un autógrafo en un cheque en blanco.", o:[{t:"Pones tu nombre y te vas (Respeto +20)", r:20, d:0, m:0},{t:"Te pones una cantidad (Dinero +1000, Respeto -100)", r:-100, d:1000, m:0}]},
+        {q:"Llegas al gimnasio y está cerrado.", o:[{t:"Haces dominadas en la farola (Respeto +25)", r:25, d:0, m:10},{t:"Te vas a por donuts (Mente -20)", r:-10, d:0, m:-20}]},
+        {q:"Tu rival copia tu estilo.", o:[{t:"Cambias de estilo antes de que termine (Mente +20)", r:20, d:0, m:20},{t:"Le denuncias (Respeto -10)", r:-10, d:0, m:0}]},
+        {q:"Un gurú te dice que duermas 2 horas.", o:[{t:"Duermes 1 hora para superarle (Mente -40, Respeto +50)", r:50, d:0, m:-40},{t:"Duermes 8 horas (Mente +30)", r:0, d:0, m:30}]},
+        {q:"Ves un billete de $100 en un charco de barro.", o:[{t:"Lo coges con los dientes (Dinero +100, Respeto -10)", r:-10, d:100, m:0},{t:"Lo ignoras, no es dinero ganado (Respeto +20)", r:20, d:0, m:5}]},
+        {q:"Te proponen ser político.", o:[{t:"No, ya tengo alma (Mente +40)", r:20, d:0, m:40},{t:"Sí, por el poder (Dinero +500, Mente -50)", r:10, d:500, m:-50}]},
+        {q:"Un pajarito te dice un secreto bursátil.", o:[{t:"Inviertes (Dinero +300)", r:0, d:300, m:0},{t:"Buscas ayuda psicológica (Mente +10)", r:0, d:0, m:10}]},
+        {q:"Alguien te insulta en un idioma que no entiendes.", o:[{t:"Asientes con superioridad (Respeto +15)", r:15, d:0, m:5},{t:"Usas traductor y te enfadas (Mente -15)", r:-5, d:0, m:-15}]},
+        {q:"Tu sombra intenta independizarse.", o:[{t:"La convences para que trabaje para ti (Respeto +50)", r:50, d:0, m:20},{t:"La dejas ir (Mente -10)", r:0, d:0, m:-10}]},
+        {q:"Un camarero te trae el plato equivocado.", o:[{t:"Te lo comes en silencio (Mente +10)", r:5, d:0, m:10},{t:"Pides hablar con el dueño (Respeto -10)", r:-10, d:0, m:0}]},
+        {q:"Te retan a un combate de ajedrez boxeo.", o:[{t:"Ganas en ambos (Respeto +60, Mente +20)", r:60, d:0, m:20},{t:"Pierdes los dientes (Respeto -20)", r:-20, d:0, m:-10}]},
+        {q:"Aparece un clon tuyo malvado.", o:[{t:"Le haces tu asistente (Dinero +100, Respeto +20)", r:20, d:100, m:10},{t:"Peleas a muerte (Mente +30)", r:10, d:0, m:30}]},
+        {q:"Descubres el sentido de la vida.", o:[{t:"Lo vendes en un PDF (Dinero +500)", r:-10, d:500, m:0},{t:"Te lo callas (Mente +100)", r:50, d:0, m:100}]},
+        {q:"Te quedas sin internet 1 semana.", o:[{t:"Escribes un libro a mano (Mente +50, Respeto +20)", r:20, d:0, m:50},{t:"Entras en pánico (Mente -50)", r:-20, d:0, m:-50}]},
+        {q:"Un robot te pide consejos sobre amor.", o:[{t:"Le explicas el interés compuesto (Dinero +50)", r:10, d:50, m:10},{t:"Le cortas los cables (Mente -10)", r:0, d:0, m:-10}]},
+        {q:"Te ofrecen ir a Marte gratis.", o:[{t:"Vas para ser el primer Sigma marciano (Respeto +100)", r:100, d:0, m:50},{t:"No, allí no hay wifi (Mente -20)", r:-10, d:0, m:-20}]},
+        {q:"Ves a tu ex con un 'Beta'.", o:[{t:"Sigues caminando sin mirar (Respeto +40)", r:40, d:0, m:20},{t:"Te ríes (Respeto -10)", r:-10, d:0, m:0}]},
+        {q:"Alguien dice que 'tu juego es malo'.", o:[{t:"Lo actualizas ahora mismo (Mente +10)", r:10, d:0, m:10},{t:"Lloras en el código (Mente -20)", r:0, d:0, m:-20}]},
+        {q:"Un anciano te ofrece una pastilla roja.", o:[{t:"Te tomas dos (Mente +50)", r:20, d:0, m:50},{t:"Prefieres una ensalada (Mente +5)", r:0, d:0, m:5}]},
+        {q:"Tu perro aprende a hablar.", o:[{t:"Le enseñas marketing (Dinero +200)", r:20, d:200, m:10},{t:"Le pides que guarde el secreto (Mente +15)", r:10, d:0, m:15}]},
+        {q:"Te invitan a una boda un martes.", o:[{t:"No vas, los martes son de grind (Mente +20)", r:15, d:0, m:20},{t:"Vas por el buffet (Respeto -20)", r:-20, d:0, m:0}]},
+        {q:"Te roban un NFT de una piedra.", o:[{t:"Compras el banco que guarda el NFT (Respeto +80)", r:80, d:-500, m:0},{t:"Te da igual (Mente +30)", r:10, d:0, m:30}]},
+        {q:"Un fan te imita el peinado.", o:[{t:"Te rapas al cero (Respeto +30)", r:30, d:0, m:10},{t:"Le denuncias por copyright (Mente -10)", r:-10, d:0, m:-10}]},
+        {q:"Te quedas sin agua caliente.", o:[{t:"Ducha helada obligatoria (Mente +40)", r:20, d:0, m:40},{t:"Calientas agua en el micro (Mente -10)", r:-5, d:0, m:-10}]},
+        {q:"Un niño te gana al ajedrez.", o:[{t:"Le contratas como estratega (Dinero +100)", r:20, d:100, m:10},{t:"Vuelcas el tablero (Respeto -50)", r:-50, d:0, m:-20}]},
+        {q:"Te ofrecen un trato con el diablo.", o:[{t:"Le estafas tú a él (Dinero +1000, Respeto +100)", r:100, d:1000, m:50},{t:"Rechazas (Mente +50)", r:30, d:0, m:50}]},
+        {q:"Tu jefe te llama 'familia'.", o:[{t:"Pides un aumento de herencia (Dinero +100)", r:20, d:100, m:10},{t:"Dices: 'No, soy un activo' (Respeto +40)", r:40, d:0, m:20}]},
+        {q:"Te encuentras una lámpara mágica.", o:[{t:"Pides más disciplina (Mente +100)", r:50, d:0, m:100},{t:"Pides dinero (Dinero +500, Mente -20)", r:-10, d:500, m:-20}]},
+        {q:"El banco te quita $1 por comisión.", o:[{t:"Montas tu propio banco (Dinero -500, Respeto +100)", r:100, d:-500, m:0},{t:"Te quejas al cajero (Respeto -30)", r:-30, d:0, m:-10}]},
+        {q:"Descubres que vives en una simulación.", o:[{t:"Buscas los cheats (Mente +50)", r:20, d:0, m:50},{t:"Sigues trabajando (Mente +100)", r:50, d:0, m:100}]},
+        {q:"Te ofrecen un viaje al pasado.", o:[{t:"Compras Bitcoin a $1 (Dinero +10000)", r:20, d:10000, m:0},{t:"Evitas que nazca tu rival (Respeto +50)", r:50, d:0, m:20}]},
+        {q:"Un alienígena te pide una selfie.", o:[{t:"Le cobras (Dinero +50)", r:10, d:50, m:5},{t:"Le ignoras (Respeto +60)", r:60, d:0, m:20}]},
+        {q:"Tienes un día libre.", o:[{t:"¿Qué es eso? Trabajas (Mente +30)", r:20, d:20, m:30},{t:"Descansas (Mente +10)", r:0, d:0, m:10}]},
+        {q:"Te muerde una araña radiactiva.", o:[{t:"Usas los poderes para el grind (Respeto +80)", r:80, d:200, m:40},{t:"Te haces un traje de mallas (Respeto -50)", r:-50, d:0, m:-10}]},
+        {q:"Alguien dice que 'te echa de menos'.", o:[{t:"No respondes (Respeto +30)", r:30, d:0, m:10},{t:"Mandas un emoji (Mente -10)", r:0, d:0, m:-10}]},
+        {q:"Ves un tutorial de 10 horas.", o:[{t:"Lo ves a 2x (Mente +20)", r:10, d:0, m:20},{t:"Lo dejas para mañana (Mente -30)", r:-10, d:0, m:-30}]},
+        {q:"Llegas al final de esta lista.", o:[{t:"Vuelves a empezar (Mente +100)", r:50, d:0, m:100},{t:"Te vas a dormir (Mente -50)", r:-20, d:0, m:-50}]}
+    ];
+
+    function loadSit() {
+        let s = situaciones[Math.floor(Math.random()*situaciones.length)];
+        document.getElementById('q-text').innerText = s.q;
+        document.getElementById('q-options').innerHTML = s.o.map(o => 
+            `<button class="option-btn" onclick="solveSit(${o.r}, ${o.d}, ${o.m})">${o.t}</button>`
+        ).join('');
+        document.getElementById('day-count').innerText = state.day;
+    }
+
+    function solveSit(r, d, m) {
+        state.respeto += r; state.money += d; state.mente += m; state.day++;
+        save(); loadSit();
+    }
+    loadSit();
+
+    // --- FLAPPY ENGINE + EDITOR ---
+    const canvas = document.getElementById('flappyCanvas');
+    const ctx = canvas.getContext('2d');
+    let birdY = 200, birdV = 0, fMode = 'edit';
+
+    canvas.addEventListener('mousedown', (e) => {
+        const rect = canvas.getBoundingClientRect();
+        const x = (e.clientX - rect.left) * (canvas.width / rect.width);
+        const y = (e.clientY - rect.top) * (canvas.height / rect.height);
+        
+        if(fMode === 'edit') {
+            state.pipes.push({x: x, h: y, w: 40}); save();
+        } else { birdV = -6; }
+    });
+
+    function setFlappyMode(m) { 
+        fMode = m; 
+        document.getElementById('play-btn').innerText = m === 'play' ? "🔄 REINICIAR" : "▶️ JUGAR NIVEL";
+        if(m === 'play') { birdY = 200; birdV = 0; }
+    }
+    function resetFlappy() { state.pipes = []; save(); }
+
+    function draw() {
+        ctx.fillStyle = "#000"; ctx.fillRect(0,0,800,400);
+        
+        ctx.fillStyle = "red";
+        state.pipes.forEach(p => {
+            ctx.fillRect(p.x, 0, p.w, p.h);
+            ctx.fillRect(p.x, p.h + 100, p.w, 400);
+            if(fMode === 'play') {
+                p.x -= 3; if(p.x < -40) p.x = 800;
+                if(60 > p.x && 40 < p.x + p.w && (birdY < p.h || birdY > p.h + 100)) setFlappyMode('play');
+            }
+        });
+
+        ctx.font = "40px Arial"; ctx.fillText("🗿", 40, birdY);
+        if(fMode === 'play') {
+            birdV += 0.3; birdY += birdV;
+            if(birdY > 400 || birdY < 0) setFlappyMode('play');
+        }
+        requestAnimationFrame(draw);
+    }
+    draw();
 
     // --- TRADER ---
-    setInterval(() => { 
-        let move = Math.floor(Math.random()*40)-20; state.price += move; 
-        if(state.price<10) state.price=10;
-        document.getElementById('t-price').innerText = "$"+state.price;
-        document.getElementById('t-price').style.color = move>=0 ? 'var(--accent)' : '#ff4444';
-    }, 2000);
     function trade(t) {
-        if(t=='buy' && state.money>=state.price) { state.money-=state.price; state.assets++; }
-        if(t=='sell' && state.assets>0) { state.money+=state.price; state.assets--; }
-        update();
+        if(t === 'buy' && state.money >= state.price) { state.money -= state.price; state.assets++; }
+        if(t === 'sell' && state.assets > 0) { state.money += state.price; state.assets--; }
+        save();
     }
+    setInterval(() => {
+        let c = Math.floor(Math.random()*60)-30; state.price += c;
+        if(state.price < 5) state.price = 5;
+        document.getElementById('t-price').innerText = "$"+state.price;
+        document.getElementById('t-price').className = c >= 0 ? "green" : "red";
+    }, 1500);
 
-    // --- FLAPPY SIGMA ---
-    const canvas = document.getElementById('flappy-canvas');
-    const ctx = canvas.getContext('2d');
-    let birdY = 100, birdV = 0, pipes = [], fScore = 0, frame = 0;
-    
-    canvas.onclick = () => birdV = -4;
-
-    function gameLoop() {
-        ctx.clearRect(0,0,400,200);
-        birdV += 0.2; birdY += birdV;
-        ctx.fillText("🗿", 50, birdY);
-
-        if(frame++ % 100 == 0) pipes.push({x:400, h:Math.random()*100+20});
-        pipes.forEach((p,i) => {
-            p.x -= 2;
-            ctx.fillStyle = "red";
-            ctx.fillRect(p.x, 0, 20, p.h);
-            ctx.fillRect(p.x, p.h+60, 20, 200);
-            if(p.x == 50) { fScore++; if(fScore>=10) unlock('ach-3'); }
-            if(p.x<70 && p.x>30 && (birdY < p.h || birdY > p.h+60)) { birdY=100; fScore=0; pipes=[]; }
-        });
-        pipes = pipes.filter(p => p.x > -20);
-        document.getElementById('flappy-score').innerText = "Score: " + fScore;
-        requestAnimationFrame(gameLoop);
-    }
-    gameLoop();
-
-    // --- DECISIONES ---
-    const qs = [
-        {q:"¿Gimnasio o Fiesta?", o:[{t:"Gym (+10 Res)", r:10, m:0}, {t:"Fiesta (-10 Res)", r:-10, m:5}]},
-        {q:"¿Invertir o Gastar?", o:[{t:"Invertir (+5 Res)", r:5, m:-5}, {t:"Gastar (+10 Mente)", r:-5, m:10}]}
-    ];
-    function loadQ() {
-        let q = qs[Math.floor(Math.random()*qs.length)];
-        document.getElementById('q-text').innerText = q.q;
-        let html = "";
-        q.o.forEach(o => html += `<button class="option-btn" onclick="ans(${o.r},${o.m})">${o.t}</button>`);
-        document.getElementById('q-options').innerHTML = html;
-    }
-    function ans(r,m) { state.res+=r; state.men+=m; loadQ(); update(); }
-    loadQ();
-
-    // --- HACKER ---
-    function runHack() {
-        const s = document.getElementById('hack-screen');
-        s.innerHTML += "<div>> ACCESING_CORE_DATABASE... OK</div>";
-        s.scrollTop = s.scrollHeight;
-    }
-
-    // --- GENERAL ---
-    function update() {
-        document.getElementById('money-display').innerText = "$"+state.money.toLocaleString();
-        document.getElementById('c-cost').innerText = state.costs[0];
-        document.getElementById('a-cost').innerText = state.costs[1];
+    // --- UI REFRESH ---
+    function updateUI() {
+        document.getElementById('global-money').innerText = "$" + Math.floor(state.money).toLocaleString();
+        document.getElementById('global-mente').innerText = state.mente;
+        document.getElementById('global-respeto').innerText = state.respeto;
         document.getElementById('t-assets').innerText = state.assets;
-        document.getElementById('s-res').innerText = state.res;
-        document.getElementById('s-men').innerText = state.men;
-
-        if(state.money>0) unlock('ach-1');
-        if(state.money>=10000) unlock('ach-2');
-        if(state.res>=100) unlock('ach-4');
+        document.getElementById('c-cost-display').innerText = "Mejora: $" + state.cCost;
     }
-    function unlock(id) { document.getElementById(id).classList.add('unlocked'); }
+    updateUI();
 </script>
 </body>
 </html>
