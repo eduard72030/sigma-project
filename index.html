@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -6,105 +6,416 @@
     <title>Sigma Fun | Grind Mode</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
-        :root { --bg: #0b0b0b; --text: #ffffff; --accent: #00ff41; --card-bg: #1a1a1a; }
-        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }
+        :root { 
+            --bg: #0b0b0b; 
+            --text: #ffffff; 
+            --accent: #00ff41; 
+            --card-bg: #1a1a1a; 
+        }
+
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background: var(--bg); 
+            color: var(--text); 
+            margin: 0; 
+            padding: 20px; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+        }
+
         header { text-align: center; margin: 40px 0; }
-        h1 { font-size: clamp(3rem, 10vw, 5rem); font-weight: 900; margin: 0; background: linear-gradient(to bottom, #fff, #444); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .container { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; width: 100%; max-width: 1200px; }
-        .card { background: var(--card-bg); border-radius: 24px; padding: 25px; border: 1px solid #333; transition: 0.3s; position: relative; overflow: hidden; }
+        
+        h1 { 
+            font-size: clamp(3rem, 10vw, 5rem); 
+            font-weight: 900; 
+            margin: 0; 
+            background: linear-gradient(to bottom, #fff, #444); 
+            -webkit-background-clip: text; 
+            -webkit-text-fill-color: transparent; 
+        }
+
+        .container { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); 
+            gap: 20px; 
+            width: 100%; 
+            max-width: 1200px; 
+        }
+
+        .card { 
+            background: var(--card-bg); 
+            border-radius: 24px; 
+            padding: 25px; 
+            border: 1px solid #333; 
+            transition: 0.3s; 
+            position: relative; 
+            display: flex;
+            flex-direction: column;
+        }
+
         .card:hover { border-color: var(--accent); transform: translateY(-5px); }
-        .game-area { margin-top: 15px; height: 180px; display: flex; flex-direction: column; justify-content: center; align-items: center; border-top: 1px solid #333; }
-        button { background: var(--text); color: #000; border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 10px; }
-        button:hover { background: var(--accent); }
-        canvas { background: #000; border-radius: 10px; cursor: crosshair; }
-        #stonks { font-size: 2rem; font-weight: bold; }
-        .green { color: #00ff41; } .red { color: #ff4141; }
+
+        .game-area { 
+            margin-top: 15px; 
+            min-height: 180px; 
+            display: flex; 
+            flex-direction: column; 
+            justify-content: center; 
+            align-items: center; 
+            border-top: 1px solid #333; 
+            padding-top: 10px;
+        }
+
+        button { 
+            background: var(--text); 
+            color: #000; 
+            border: none; 
+            padding: 10px 20px; 
+            border-radius: 8px; 
+            font-weight: bold; 
+            cursor: pointer; 
+            margin-top: 10px; 
+            transition: 0.2s;
+        }
+
+        button:hover { background: var(--accent); transform: scale(1.05); }
+
+        canvas { background: #000; border-radius: 10px; cursor: crosshair; width: 100%; }
+
+        .green { color: #00ff41; } 
+        .red { color: #ff4141; font-weight: bold; }
+
+        /* Estilos específicos Juego de Decisiones */
+        #decision-game-card { grid-column: 1 / -1; max-width: 800px; margin: 20px auto; width: 100%; }
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; width: 100%; margin-bottom: 15px; }
+        .stat-item { background: #000; padding: 10px; border-radius: 10px; text-align: center; font-size: 0.9rem; border: 1px solid #222; }
+        .option-btn { background: transparent; color: white; border: 1px solid #444; text-align: left; width: 100%; padding: 12px; font-size: 0.9rem; }
+        .option-btn:hover { border-color: var(--accent); background: #222; }
+
+        /* Notificación de Logros */
+        #achievement-toast {
+            position: fixed; bottom: 20px; right: 20px; background: var(--accent); color: black;
+            padding: 15px 25px; border-radius: 10px; font-weight: bold; transform: translateY(150%);
+            transition: 0.5s; z-index: 1000;
+        }
+        #achievement-toast.show { transform: translateY(0); }
     </style>
 </head>
 <body>
 
+<div id="achievement-toast">¡Logro Desbloqueado!</div>
+
 <header>
     <h1>SIGMA FUN</h1>
-    <p>Minimalismo, disciplina y código.</p>
+    <p>Simplicidad, disciplina y código.</p>
 </header>
 
 <div class="container">
+    
+    <div class="card" id="decision-game-card">
+        <h3 style="margin-top:0">🏆 Camino del Sigma</h3>
+        <p id="day-counter">Día 1 - Decisión 1/3</p>
+        
+        <div class="stats-grid">
+            <div class="stat-item">🧠 Mente: <span id="stat-mente">50</span></div>
+            <div class="stat-item">💰 Dinero: <span id="stat-dinero">50</span></div>
+            <div class="stat-item">😎 Respeto: <span id="stat-respeto">50</span></div>
+        </div>
+
+        <div id="decision-area" class="game-area" style="align-items: flex-start; justify-content: flex-start;">
+            <p id="situation-text" style="font-size: 1.1rem; min-height: 50px;">Cargando situación...</p>
+            <div id="option-buttons" style="width: 100%; display: flex; flex-direction: column; gap: 8px;"></div>
+        </div>
+    </div>
+
     <div class="card">
         <h3>Sigma Clicker</h3>
-        <p>Genera capital ficticio sin parar.</p>
+        <p>Aumenta tu valor neto.</p>
         <div class="game-area">
-            <div id="coin" style="font-size: 3rem; cursor:pointer;" onclick="addCoin()">💎</div>
-            <p>Net Worth: $<span id="counter">0</span></p>
+            <div id="coin" style="font-size: 4rem; cursor:pointer; user-select:none;" onclick="addCoin()">💎</div>
+            <p style="font-size: 1.5rem;">$ <span id="counter">0</span></p>
         </div>
     </div>
 
     <div class="card">
-        <h3>Stonks Simulator</h3>
-        <p>¿Subirá o bajará? El mercado no espera.</p>
+        <h3>Mercado de Valores</h3>
+        <p>Inversión en tiempo real.</p>
         <div class="game-area">
-            <div id="stonks" class="green">$1,000</div>
-            <p id="trend">Tendencia: Lateral</p>
+            <div id="stonks" style="font-size: 2rem; font-weight: bold;">$1,000</div>
+            <p id="trend">Tendencia: Estable</p>
         </div>
     </div>
 
     <div class="card">
-        <h3>Sigma Art</h3>
-        <p>Dibuja tu destino (con el ratón).</p>
+        <h3>Diseño Abstracto</h3>
         <div class="game-area">
-            <canvas id="paintCanvas" width="250" height="150" onmousemove="draw(event)"></canvas>
-            <button onclick="clearCanvas()">Limpiar</button>
+            <canvas id="paintCanvas" width="250" height="120" onmousemove="draw(event)"></canvas>
+            <button onclick="clearCanvas()">Limpiar Lienzo</button>
         </div>
     </div>
 
-    <div class="card">
-        <h3>Velocidad de Reacción</h3>
-        <p>Un Sigma siempre está alerta.</p>
-        <div class="game-area">
-            <div id="box" style="width:50px; height:50px; background:var(--accent); cursor:pointer;" onclick="hitBox()"></div>
-            <p>Puntos: <span id="score">0</span></p>
-        </div>
-    </div>
 </div>
 
 <script>
-    // 1. Clicker
-    let count = 0;
-    function addCoin() { count += 100; document.getElementById('counter').innerText = count.toLocaleString(); }
+    // --- LÓGICA LOGROS ---
+    const achievementsDone = new Set();
+    function showAchievement(text) {
+        if (achievementsDone.has(text)) return;
+        achievementsDone.add(text);
+        const toast = document.getElementById('achievement-toast');
+        toast.innerText = "🏆 Logro: " + text;
+        toast.classList.add('show');
+        setTimeout(() => toast.classList.remove('show'), 4000);
+    }
 
-    // 2. Stonks
+    // --- LÓGICA CLICKER ---
+    let count = 0;
+    function addCoin() { 
+        count += 50; 
+        document.getElementById('counter').innerText = count.toLocaleString();
+        if(count >= 1000) showAchievement("Primeros $1,000");
+        if(count >= 10000) showAchievement("Capitalista Emergente");
+    }
+
+    // --- LÓGICA STONKS ---
     let money = 1000;
     setInterval(() => {
-        let change = Math.floor(Math.random() * 200) - 100;
+        let change = Math.floor(Math.random() * 400) - 200;
         money += change;
+        if(money < 0) money = 0;
         const el = document.getElementById('stonks');
         el.innerText = `$${money.toLocaleString()}`;
         el.className = change >= 0 ? 'green' : 'red';
         document.getElementById('trend').innerText = change >= 0 ? "Tendencia: Bullish" : "Tendencia: Bearish";
-    }, 2000);
+        if(money > 5000) showAchievement("Lobo de Wall Street");
+    }, 2500);
 
-    // 3. Canvas Draw
+    // --- LÓGICA CANVAS ---
     const canvas = document.getElementById('paintCanvas');
     const ctx = canvas.getContext('2d');
     function draw(e) {
         if (e.buttons !== 1) return;
         ctx.fillStyle = "#00ff41";
-        ctx.beginPath();
         const rect = canvas.getBoundingClientRect();
+        ctx.beginPath();
         ctx.arc(e.clientX - rect.left, e.clientY - rect.top, 2, 0, Math.PI*2);
         ctx.fill();
     }
     function clearCanvas() { ctx.clearRect(0, 0, canvas.width, canvas.height); }
 
-    // 4. Reacción
-    let score = 0;
-    function hitBox() {
-        score++;
-        document.getElementById('score').innerText = score;
-        const box = document.getElementById('box');
-        box.style.marginTop = Math.random() * 50 + "px";
-        box.style.marginLeft = (Math.random() * 100 - 50) + "px";
-    }
-</script>
+    // --- JUEGO DE DECISIONES: SITUACIONES (30) ---
+    const situaciones = [
+        { q: "Te ofrecen un atajo poco ético para ganar dinero.", opts: [
+            { t: "Lo rechazas con elegancia", m: 10, d: 0, r: 15 },
+            { t: "Aceptas, el fin justifica los medios", m: -15, d: 40, r: -10 },
+            { t: "Lo denuncias a las autoridades", m: 5, d: 0, r: 5 }
+        ]},
+        { q: "Un antiguo rival te pide ayuda.", opts: [
+            { t: "Le ayudas desinteresadamente", m: 15, d: -5, r: 10 },
+            { t: "Ignoras su mensaje", m: 5, d: 0, r: 5 },
+            { t: "Le cobras por tu asesoría", m: 0, d: 20, r: 0 }
+        ]},
+        { q: "Ves a alguien siendo intimidado.", opts: [
+            { t: "Intervienes con calma", m: 5, d: 0, r: 20 },
+            { t: "Llamas a seguridad", m: 10, d: 0, r: 5 },
+            { t: "Sigues tu camino, no es tu problema", m: -5, d: 0, r: -10 }
+        ]},
+        { q: "Encuentras una billetera con mucho dinero.", opts: [
+            { t: "La devuelves intacta", m: 20, d: 0, r: 10 },
+            { t: "Te quedas el dinero", m: -20, d: 50, r: -20 },
+            { t: "Donas el dinero a caridad", m: 10, d: 0, r: 15 }
+        ]},
+        { q: "Te critican duramente en redes sociales.", opts: [
+            { t: "No respondes, silencio absoluto", m: 20, d: 0, r: 15 },
+            { t: "Entras en una discusión larga", m: -25, d: 0, r: -10 },
+            { t: "Usas la crítica para mejorar", m: 15, d: 5, r: 5 }
+        ]},
+        { q: "Un negocio tuyo fracasa.", opts: [
+            { t: "Analizas los errores y reinicias", m: 20, d: -10, r: 5 },
+            { t: "Te culpas y te rindes", m: -30, d: 0, r: -10 },
+            { t: "Vendes lo que queda y sales", m: 5, d: 10, r: 0 }
+        ]},
+        { q: "Te ofrecen una fiesta increíble antes de un examen/reunión.", opts: [
+            { t: "Te quedas estudiando/preparando", m: 15, d: 5, r: 5 },
+            { t: "Vas solo una hora", m: -5, d: -5, r: 0 },
+            { t: "Fiesta toda la noche", m: -20, d: -10, r: -10 }
+        ]},
+        { q: "Alguien te debe dinero y no te paga.", opts: [
+            { t: "Le das un ultimátum firme", m: 5, d: 0, r: 10 },
+            { t: "Perdonas la deuda", m: 10, d: -20, r: 5 },
+            { t: "Inicias acciones legales", m: -5, d: 15, r: 0 }
+        ]},
+        { q: "Tienes la oportunidad de aprender una habilidad difícil.", opts: [
+            { t: "Dedicas 4 horas diarias", m: 25, d: -10, r: 10 },
+            { t: "Buscas un tutorial rápido", m: 5, d: 0, r: 0 },
+            { t: "Prefieres descansar", m: -10, d: 0, r: -5 }
+        ]},
+        { q: "Un extraño te pide comida.", opts: [
+            { t: "Le compras un menú completo", m: 10, d: -10, r: 10 },
+            { t: "Le das algo de cambio", m: 5, d: -2, r: 2 },
+            { t: "Le ignoras", m: -5, d: 0, r: -5 }
+        ]},
+        { q: "Tu jefe te pide hacer algo éticamente dudoso.", opts: [
+            { t: "Renuncias por principios", m: 20, d: -30, r: 25 },
+            { t: "Lo haces para mantener el empleo", m: -25, d: 15, r: -15 },
+            { t: "Propones una alternativa ética", m: 10, d: 5, r: 10 }
+        ]},
+        { q: "Ganas la lotería (premio pequeño).", opts: [
+            { t: "Inviertes todo", m: 10, d: 30, r: 5 },
+            { t: "Lo gastas en lujos", m: -5, d: -20, r: 10 },
+            { t: "Lo ahorras", m: 15, d: 10, r: 0 }
+        ]},
+        { q: "Un familiar habla mal de tus proyectos.", opts: [
+            { t: "Le demuestras con resultados", m: 20, d: 5, r: 15 },
+            { t: "Discutes con él", m: -15, d: 0, r: -5 },
+            { t: "Te alejas de esa negatividad", m: 15, d: 0, r: 5 }
+        ]},
+        { q: "Te sientes agotado pero el trabajo no termina.", opts: [
+            { t: "Meditas 10 min y sigues", m: 15, d: 5, r: 5 },
+            { t: "Bebes 4 cafés", m: -10, d: -2, r: 0 },
+            { t: "Duermes y terminas mañana", m: 10, d: -5, r: -5 }
+        ]},
+        { q: "Ves una injusticia en tu oficina/clase.", opts: [
+            { t: "Alzas la voz por el otro", m: 10, d: -5, r: 20 },
+            { t: "Envías un reporte anónimo", m: 5, d: 0, r: 5 },
+            { t: "No te involucras", m: -10, d: 0, r: -10 }
+        ]},
+        { q: "Te ofrecen un viaje gratis a cambio de publicidad engañosa.", opts: [
+            { t: "Rechazas, tu palabra vale más", m: 20, d: 0, r: 15 },
+            { t: "Aceptas, es solo una vez", m: -20, d: 10, r: -10 },
+            { t: "Aceptas y dices la verdad del producto", m: 10, d: 0, r: 5 }
+        ]},
+        { q: "Descubres un secreto de tu competidor.", opts: [
+            { t: "No lo usas, juegas limpio", m: 20, d: 0, r: 10 },
+            { t: "Lo usas para chantaje", m: -30, d: 30, r: -30 },
+            { t: "Lo usas para protegerte", m: 5, d: 0, r: 5 }
+        ]},
+        { q: "Alguien te insulta en el tráfico.", opts: [
+            { t: "Sigues conduciendo tranquilo", m: 15, d: 0, r: 10 },
+            { t: "Gritas de vuelta", m: -15, d: 0, r: -10 },
+            { t: "Le sonríes", m: 10, d: 0, r: 5 }
+        ]},
+        { q: "Te proponen ser socio de una empresa de dudosa procedencia.", opts: [
+            { t: "Investigas y rechazas", m: 15, d: 0, r: 10 },
+            { t: "Aceptas por el dinero rápido", m: -30, d: 50, r: -20 },
+            { t: "Llamas a la policía", m: 10, d: 0, r: 10 }
+        ]},
+        { q: "Llevas una semana sin entrenar/estudiar.", opts: [
+            { t: "Haces una sesión doble hoy", m: 15, d: 0, r: 10 },
+            { t: "Mañana empiezo sin falta", m: -10, d: 0, r: -5 },
+            { t: "Aceptas el fallo y retomas rutina", m: 10, d: 0, r: 5 }
+        ]},
+        { q: "Un mentor te da un consejo que no te gusta.", opts: [
+            { t: "Lo analizas con humildad", m: 20, d: 0, r: 5 },
+            { t: "Lo ignoras, tú sabes más", m: -15, d: 0, r: -10 },
+            { t: "Buscas otra opinión", m: 5, d: 0, r: 0 }
+        ]},
+        { q: "Te ofrecen un descuento si pagas sin factura (ilegal).", opts: [
+            { t: "Pagas legalmente", m: 10, d: -10, r: 10 },
+            { t: "Aceptas el descuento", m: -10, d: 15, r: -10 },
+            { t: "Buscas otro proveedor", m: 5, d: 0, r: 5 }
+        ]},
+        { q: "Tu equipo de trabajo comete un error grave.", opts: [
+            { t: "Asumes la responsabilidad como líder", m: 10, d: -10, r: 25 },
+            { t: "Culpas al responsable", m: -10, d: 0, r: -15 },
+            { t: "Lo solucionas en silencio", m: 15, d: -5, r: 10 }
+        ]},
+        { q: "Te encuentras con tu ex y está teniendo éxito.", opts: [
+            { t: "Te alegras sinceramente", m: 20, d: 0, r: 10 },
+            { t: "Sientes envidia", m: -20, d: 0, r: -5 },
+            { t: "Ni te fijas, estás en tu zona", m: 15, d: 0, r: 5 }
+        ]},
+        { q: "Un suscriptor/cliente te pide algo imposible.", opts: [
+            { t: "Dices que no con respeto", m: 10, d: 0, r: 10 },
+            { t: "Intentas hacerlo y fallas", m: -10, d: -10, r: -5 },
+            { t: "Le recomiendas a alguien más", m: 5, d: 0, r: 5 }
+        ]},
+        { q: "Te ofrecen probar una droga 'recreativa'.", opts: [
+            { t: "Rechazo absoluto", m: 30, d: 0, r: 15 },
+            { t: "Solo por probar", m: -40, d: -10, r: -20 },
+            { t: "Te alejas de ese grupo", m: 20, d: 0, r: 10 }
+        ]},
+        { q: "Tienes 100k seguidores y te piden promocionar apuestas.", opts: [
+            { t: "Rechazas, no vendes a tu audiencia", m: 25, d: -50, r: 30 },
+            { t: "Aceptas, es mucho dinero", m: -30, d: 60, r: -30 },
+            { t: "Haces un video advirtiendo del riesgo", m: 15, d: 10, r: 20 }
+        ]},
+        { q: "Un desconocido te reta a una pelea.", opts: [
+            { t: "Ignoras y sigues caminando", m: 20, d: 0, r: 15 },
+            { t: "Peleas", m: -25, d: -10, r: -10 },
+            { t: "Llamas a la policía", m: 10, d: 0, r: 5 }
+        ]},
+        { q: "Tu PC se rompe y tienes una entrega mañana.", opts: [
+            { t: "Buscas un cyber o pides prestado", m: 20, d: -10, r: 10 },
+            { t: "Lloras y no entregas", m: -30, d: -20, r: -15 },
+            { t: "La arreglas tú mismo toda la noche", m: 15, d: -5, r: 15 }
+        ]},
+        { q: "Te das cuenta que has estado perdiendo el tiempo.", opts: [
+            { t: "Apagas el móvil y trabajas ya", m: 20, d: 5, r: 10 },
+            { t: "Mañana recupero el tiempo", m: -15, d: 0, r: -5 },
+            { t: "Te deprimes por el tiempo perdido", m: -20, d: 0, r: -10 }
+        ]}
+    ];
 
+    let gameState = { mente: 50, dinero: 50, respeto: 50, dia: 1, dec: 1 };
+
+    function updateGameUI() {
+        document.getElementById('stat-mente').innerText = gameState.mente;
+        document.getElementById('stat-dinero').innerText = gameState.dinero;
+        document.getElementById('stat-respeto').innerText = gameState.respeto;
+        document.getElementById('day-counter').innerText = `Día ${gameState.dia} - Decisión ${gameState.dec}/3`;
+        
+        // Colores de alerta
+        document.getElementById('stat-mente').style.color = gameState.mente < 30 ? 'red' : 'white';
+        document.getElementById('stat-dinero').style.color = gameState.dinero < 30 ? 'red' : 'white';
+        document.getElementById('stat-respeto').style.color = gameState.respeto < 30 ? 'red' : 'white';
+    }
+
+    function renderSituation() {
+        if (gameState.mente <= 20 || gameState.dinero <= 20 || gameState.respeto <= 20) {
+            return endGame("Has fallado en mantener el equilibrio Sigma.");
+        }
+
+        const sit = situaciones[Math.floor(Math.random() * situaciones.length)];
+        document.getElementById('situation-text').innerText = sit.q;
+        const btnContainer = document.getElementById('option-buttons');
+        btnContainer.innerHTML = '';
+
+        sit.opts.forEach(o => {
+            const b = document.createElement('button');
+            b.className = 'option-btn';
+            b.innerText = o.t;
+            b.onclick = () => {
+                gameState.mente += o.m;
+                gameState.dinero += o.d;
+                gameState.respeto += o.r;
+                gameState.dec++;
+                if(gameState.dec > 3) { gameState.dec = 1; gameState.dia++; }
+                updateGameUI();
+                renderSituation();
+            };
+            btnContainer.appendChild(b);
+        });
+    }
+
+    function endGame(msg) {
+        const total = gameState.mente + gameState.dinero + gameState.respeto;
+        let rank = "Novato";
+        if(total > 150) rank = "Sigma Élite";
+        if(total > 200) rank = "Leyenda Sigma";
+        if(gameState.respeto > 100) rank = "Sigma Reconocido";
+
+        document.getElementById('situation-text').innerHTML = `<b class="red">GAME OVER</b><br>${msg}<br><br>Rango: ${rank}<br>Días sobrevividos: ${gameState.dia}`;
+        document.getElementById('option-buttons').innerHTML = `<button onclick="location.reload()">Reintentar Grind</button>`;
+        
+        if(total > 200) showAchievement("Leyenda Viviente");
+    }
+
+    // Iniciar juego de decisiones
+    updateGameUI();
+    renderSituation();
+
+</script>
 </body>
 </html>
