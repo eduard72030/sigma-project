@@ -3,36 +3,38 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sigma Fun | Grind Station</title>
+    <title>Sigma Fun | Ultimate Edition</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
         :root { --bg: #050505; --text: #ffffff; --accent: #00ff41; --card-bg: #111111; }
         body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }
-        h1 { font-size: clamp(2.5rem, 8vw, 4rem); font-weight: 900; margin: 20px 0; background: linear-gradient(to bottom, #fff, #444); -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: -2px; }
-        .container { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 20px; width: 100%; max-width: 1200px; padding-bottom: 50px; }
-        .card { background: var(--card-bg); border-radius: 20px; padding: 25px; border: 1px solid #222; transition: 0.3s; display: flex; flex-direction: column; }
-        .card:hover { border-color: var(--accent); transform: translateY(-3px); }
+        h1 { font-size: clamp(2rem, 8vw, 4rem); font-weight: 900; margin: 20px 0; background: linear-gradient(to right, #fff, #444); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
         
-        /* Clicker y Tienda */
-        #sigma-face { font-size: 6rem; cursor: pointer; user-select: none; transition: 0.1s; filter: drop-shadow(0 0 10px rgba(0,255,65,0.1)); }
-        #sigma-face:active { transform: scale(0.9); }
-        .shop-item { display: flex; justify-content: space-between; align-items: center; background: #000; padding: 12px; margin: 8px 0; border-radius: 12px; border: 1px solid #222; }
-        .btn-buy { background: var(--accent); color: #000; border: none; padding: 8px 15px; border-radius: 8px; font-weight: bold; cursor: pointer; }
-        .btn-buy:disabled { background: #333; color: #777; cursor: not-allowed; }
+        .container { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 20px; width: 100%; max-width: 1200px; }
+        .card { background: var(--card-bg); border-radius: 20px; padding: 20px; border: 1px solid #222; position: relative; overflow: hidden; }
+        .card:hover { border-color: var(--accent); }
+
+        /* Estilos Comunes */
+        button { background: var(--text); color: #000; border: none; padding: 10px; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 5px; }
+        button:hover { background: var(--accent); }
+        .green { color: var(--accent); } .red { color: #ff4444; }
+
+        /* 1. Flappy Sigma */
+        #flappy-canvas { background: #000; border: 1px solid #333; width: 100%; height: 200px; display: block; border-radius: 10px; cursor: pointer; }
+
+        /* 2. Clicker & Shop */
+        #sigma-face { font-size: 4rem; cursor: pointer; user-select: none; }
+        .shop-item { background: #000; padding: 10px; margin: 5px 0; border-radius: 8px; display: flex; justify-content: space-between; font-size: 0.8rem; }
+
+        /* 3. Decisiones */
+        .option-btn { background: transparent; color: white; border: 1px solid #333; text-align: left; width: 100%; font-size: 0.8rem; margin-top: 5px; }
+        
+        /* 4. Hacker */
+        #hack-screen { background: #000; color: var(--accent); font-family: monospace; height: 80px; overflow: hidden; font-size: 0.7rem; padding: 5px; border: 1px solid #222; }
 
         /* Logros */
-        .achievement-row { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; color: #444; font-weight: bold; transition: 0.5s; }
-        .achievement-row.unlocked { color: var(--accent); text-shadow: 0 0 10px rgba(0,255,65,0.3); }
-
-        /* Trader Game */
-        #price-display { font-size: 2.5rem; font-weight: 900; margin: 10px 0; }
-        .trade-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; }
-        .buy-btn { background: #00ff41; color: #000; }
-        .sell-btn { background: #ff4444; color: #fff; }
-
-        .green { color: var(--accent); }
-        .red { color: #ff4444; }
-        p { color: #888; margin: 5px 0; }
+        .ach-row { font-size: 0.8rem; margin-bottom: 5px; opacity: 0.3; }
+        .unlocked { opacity: 1; color: var(--accent); }
     </style>
 </head>
 <body>
@@ -41,160 +43,151 @@
 
 <div class="container">
     
+    <div class="card" style="grid-column: 1 / -1; max-width: 800px; margin: auto; width: 100%;">
+        <h3>🐦 Flappy Sigma</h3>
+        <p>Haz clic para saltar y esquivar el "Hate".</p>
+        <canvas id="flappy-canvas" width="400" height="200"></canvas>
+        <p id="flappy-score">Score: 0</p>
+    </div>
+
     <div class="card">
-        <h3>🗿 El Clicker del Grind</h3>
-        <div style="text-align: center; padding: 20px;">
-            <div id="sigma-face" onclick="doClick()">🗿</div>
-            <h2 id="balance" style="font-size: 2.5rem; margin: 10px 0;">$0</h2>
-            <p>Por clic: <span class="green">$<span id="val-per-click">1</span></span> | Pasivo: <span class="green">$<span id="val-auto">0</span>/s</span></p>
+        <h3>🗿 Clicker Shop</h3>
+        <div style="text-align:center">
+            <div id="sigma-face" onclick="clickSigma()">🗿</div>
+            <h2 id="money-display">$0</h2>
         </div>
         <div class="shop-item">
-            <div><b>Focus Mental</b><br><p>Clic +1 (Coste: $<span id="cost-click">15</span>)</p></div>
-            <button class="btn-buy" id="btn-upgrade-click" onclick="buyUpgrade('click')">Mejorar</button>
+            <span>Mejora Clic ($<span id="c-cost">15</span>)</span>
+            <button onclick="buy('click')">BUY</button>
         </div>
         <div class="shop-item">
-            <div><b>Auto-Grind</b><br><p>+$5/s (Coste: $<span id="cost-auto">100</span>)</p></div>
-            <button class="btn-buy" id="btn-upgrade-auto" onclick="buyUpgrade('auto')">Mejorar</button>
+            <span>Auto-Grind ($<span id="a-cost">100</span>)</span>
+            <button onclick="buy('auto')">BUY</button>
         </div>
     </div>
 
     <div class="card">
-        <h3>📈 Sigma Trader</h3>
-        <p>Compra barato, vende caro. No pierdas tu capital.</p>
-        <div style="text-align: center; margin: 20px 0;">
-            <p>Precio Activo:</p>
-            <div id="price-display">$100</div>
-            <p>Tienes: <span id="assets-owned" class="green">0</span> activos</p>
-        </div>
-        <div class="trade-btns">
-            <button class="btn-buy buy-btn" onclick="trade('buy')">COMPRAR</button>
-            <button class="btn-buy sell-btn" onclick="trade('sell')">VENDER</button>
-        </div>
+        <h3>🧠 Decisiones</h3>
+        <p id="q-text" style="font-size:0.9rem">Cargando...</p>
+        <div id="q-options"></div>
+        <p style="font-size:0.7rem; margin-top:10px;">Respeto: <span id="s-res">50</span> | Mente: <span id="s-men">50</span></p>
     </div>
 
     <div class="card">
-        <h3>🏆 Logros de Estatus</h3>
-        <div id="achievements-list">
-            <div class="achievement-row" id="ach-1">🔒 Inversionista Inicial ($500)</div>
-            <div class="achievement-row" id="ach-2">🔒 Influencer del Grind ($5,000)</div>
-            <div class="achievement-row" id="ach-3">🔒 Tiburón de Negocios ($50,000)</div>
-            <div class="achievement-row" id="ach-4">🔒 Capitalista Absoluto ($500,000)</div>
-            <div class="achievement-row" id="ach-5">🔒 Leyenda Sigma ($1M)</div>
+        <h3>📈 Trader</h3>
+        <div id="t-price" style="font-size: 2rem; text-align: center;">$100</div>
+        <div style="display:flex; gap:5px;">
+            <button style="flex:1" onclick="trade('buy')">COMPRAR</button>
+            <button style="flex:1; background:#ff4444; color:#fff;" onclick="trade('sell')">VENDER</button>
         </div>
-        <button style="margin-top:20px; background:none; color:#444; border:1px solid #444;" onclick="resetGame()">Reiniciar Todo</button>
+        <p>Activos: <span id="t-assets">0</span></p>
+    </div>
+
+    <div class="card">
+        <h3>💻 Terminal</h3>
+        <div id="hack-screen">C:\> _</div>
+        <input type="text" oninput="runHack()" placeholder="Teclea rápido..." style="width:100%; background:#000; color:var(--accent); border:1px solid #333; margin-top:5px;">
+    </div>
+
+    <div class="card">
+        <h3>🏆 Logros</h3>
+        <div id="ach-1" class="ach-row">🗿 Clickeador Novato</div>
+        <div id="ach-2" class="ach-row">💰 Inversionista ($10k)</div>
+        <div id="ach-3" class="ach-row">🐦 Maestro del Aire (10 score)</div>
+        <div id="ach-4" class="ach-row">👑 Rey del Estatus (100 Respeto)</div>
     </div>
 
 </div>
 
 <script>
-    // --- DATOS Y GUARDADO ---
-    let data = JSON.parse(localStorage.getItem('sigmaData')) || {
-        money: 0,
-        clickVal: 1,
-        autoVal: 0,
-        costs: { click: 15, auto: 100 },
-        assets: 0
-    };
-
-    function save() {
-        localStorage.setItem('sigmaData', JSON.stringify(data));
-    }
+    // --- DATA ---
+    let state = { money: 0, click: 1, auto: 0, costs: [15, 100], res: 50, men: 50, assets: 0, price: 100 };
 
     // --- CLICKER ---
-    function doClick() {
-        data.money += data.clickVal;
-        updateUI();
+    function clickSigma() { state.money += state.click; update(); }
+    function buy(type) {
+        if(type=='click' && state.money>=state.costs[0]) { state.money-=state.costs[0]; state.click++; state.costs[0]*=2; }
+        if(type=='auto' && state.money>=state.costs[1]) { state.money-=state.costs[1]; state.auto+=5; state.costs[1]*=2; }
+        update();
     }
+    setInterval(() => { state.money += state.auto; update(); }, 1000);
 
-    function buyUpgrade(type) {
-        if (type === 'click' && data.money >= data.costs.click) {
-            data.money -= data.costs.click;
-            data.clickVal += 1;
-            data.costs.click = Math.floor(data.costs.click * 1.7);
-        } else if (type === 'auto' && data.money >= data.costs.auto) {
-            data.money -= data.costs.auto;
-            data.autoVal += 5;
-            data.costs.auto = Math.floor(data.costs.auto * 2);
-        }
-        updateUI();
-    }
-
-    // --- TRADER GAME ---
-    let currentPrice = 100;
-    setInterval(() => {
-        let change = Math.floor(Math.random() * 40) - 20;
-        currentPrice += change;
-        if (currentPrice < 10) currentPrice = 10;
-        
-        const display = document.getElementById('price-display');
-        display.innerText = `$${currentPrice}`;
-        display.className = change >= 0 ? 'green' : 'red';
+    // --- TRADER ---
+    setInterval(() => { 
+        let move = Math.floor(Math.random()*40)-20; state.price += move; 
+        if(state.price<10) state.price=10;
+        document.getElementById('t-price').innerText = "$"+state.price;
+        document.getElementById('t-price').style.color = move>=0 ? 'var(--accent)' : '#ff4444';
     }, 2000);
-
-    function trade(type) {
-        if (type === 'buy' && data.money >= currentPrice) {
-            data.money -= currentPrice;
-            data.assets++;
-        } else if (type === 'sell' && data.assets > 0) {
-            data.money += currentPrice;
-            data.assets--;
-        }
-        updateUI();
+    function trade(t) {
+        if(t=='buy' && state.money>=state.price) { state.money-=state.price; state.assets++; }
+        if(t=='sell' && state.assets>0) { state.money+=state.price; state.assets--; }
+        update();
     }
 
-    // --- LOOP PASIVO ---
-    setInterval(() => {
-        if (data.autoVal > 0) {
-            data.money += data.autoVal;
-            updateUI();
-        }
-    }, 1000);
+    // --- FLAPPY SIGMA ---
+    const canvas = document.getElementById('flappy-canvas');
+    const ctx = canvas.getContext('2d');
+    let birdY = 100, birdV = 0, pipes = [], fScore = 0, frame = 0;
+    
+    canvas.onclick = () => birdV = -4;
 
-    // --- UI Y LOGROS ---
-    function updateUI() {
-        document.getElementById('balance').innerText = `$${Math.floor(data.money).toLocaleString()}`;
-        document.getElementById('val-per-click').innerText = data.clickVal;
-        document.getElementById('val-auto').innerText = data.autoVal;
-        document.getElementById('cost-click').innerText = data.costs.click;
-        document.getElementById('cost-auto').innerText = data.costs.auto;
-        document.getElementById('assets-owned').innerText = data.assets;
+    function gameLoop() {
+        ctx.clearRect(0,0,400,200);
+        birdV += 0.2; birdY += birdV;
+        ctx.fillText("🗿", 50, birdY);
 
-        // Desactivar botones si no hay dinero
-        document.getElementById('btn-upgrade-click').disabled = data.money < data.costs.click;
-        document.getElementById('btn-upgrade-auto').disabled = data.money < data.costs.auto;
-
-        checkAchievements();
-        save();
-    }
-
-    function checkAchievements() {
-        const milestones = [
-            { id: 'ach-1', val: 500, txt: '✅ Inversionista Inicial' },
-            { id: 'ach-2', val: 5000, txt: '✅ Influencer del Grind' },
-            { id: 'ach-3', val: 50000, txt: '✅ Tiburón de Negocios' },
-            { id: 'ach-4', val: 500000, txt: '✅ Capitalista Absoluto' },
-            { id: 'ach-5', val: 1000000, txt: '✅ Leyenda Sigma' }
-        ];
-
-        milestones.forEach(m => {
-            if (data.money >= m.val) {
-                const el = document.getElementById(m.id);
-                el.classList.add('unlocked');
-                el.innerText = m.txt;
-            }
+        if(frame++ % 100 == 0) pipes.push({x:400, h:Math.random()*100+20});
+        pipes.forEach((p,i) => {
+            p.x -= 2;
+            ctx.fillStyle = "red";
+            ctx.fillRect(p.x, 0, 20, p.h);
+            ctx.fillRect(p.x, p.h+60, 20, 200);
+            if(p.x == 50) { fScore++; if(fScore>=10) unlock('ach-3'); }
+            if(p.x<70 && p.x>30 && (birdY < p.h || birdY > p.h+60)) { birdY=100; fScore=0; pipes=[]; }
         });
+        pipes = pipes.filter(p => p.x > -20);
+        document.getElementById('flappy-score').innerText = "Score: " + fScore;
+        requestAnimationFrame(gameLoop);
+    }
+    gameLoop();
+
+    // --- DECISIONES ---
+    const qs = [
+        {q:"¿Gimnasio o Fiesta?", o:[{t:"Gym (+10 Res)", r:10, m:0}, {t:"Fiesta (-10 Res)", r:-10, m:5}]},
+        {q:"¿Invertir o Gastar?", o:[{t:"Invertir (+5 Res)", r:5, m:-5}, {t:"Gastar (+10 Mente)", r:-5, m:10}]}
+    ];
+    function loadQ() {
+        let q = qs[Math.floor(Math.random()*qs.length)];
+        document.getElementById('q-text').innerText = q.q;
+        let html = "";
+        q.o.forEach(o => html += `<button class="option-btn" onclick="ans(${o.r},${o.m})">${o.t}</button>`);
+        document.getElementById('q-options').innerHTML = html;
+    }
+    function ans(r,m) { state.res+=r; state.men+=m; loadQ(); update(); }
+    loadQ();
+
+    // --- HACKER ---
+    function runHack() {
+        const s = document.getElementById('hack-screen');
+        s.innerHTML += "<div>> ACCESING_CORE_DATABASE... OK</div>";
+        s.scrollTop = s.scrollHeight;
     }
 
-    function resetGame() {
-        if(confirm("¿Seguro que quieres borrar tu progreso Sigma?")) {
-            localStorage.clear();
-            location.reload();
-        }
-    }
+    // --- GENERAL ---
+    function update() {
+        document.getElementById('money-display').innerText = "$"+state.money.toLocaleString();
+        document.getElementById('c-cost').innerText = state.costs[0];
+        document.getElementById('a-cost').innerText = state.costs[1];
+        document.getElementById('t-assets').innerText = state.assets;
+        document.getElementById('s-res').innerText = state.res;
+        document.getElementById('s-men').innerText = state.men;
 
-    // Inicializar
-    updateUI();
+        if(state.money>0) unlock('ach-1');
+        if(state.money>=10000) unlock('ach-2');
+        if(state.res>=100) unlock('ach-4');
+    }
+    function unlock(id) { document.getElementById(id).classList.add('unlocked'); }
 </script>
-
 </body>
 </html>
