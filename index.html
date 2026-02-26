@@ -276,4 +276,283 @@
     save(); loadDec(); updateFlappy();
 </script>
 </body>
+</html><!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sigma Fun | Work & Grind</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root { --bg: #050505; --accent: #00ff41; --win-bg: #121212; --border: #222; }
+        * { box-sizing: border-box; outline: none; }
+        body { 
+            font-family: 'Inter', sans-serif; background: var(--bg); color: white;
+            margin: 0; height: 100vh; overflow: hidden;
+            background: radial-gradient(circle at center, #111 0%, #000 100%);
+        }
+
+        /* ESCRITORIO */
+        .desktop { width: 100%; height: calc(100% - 40px); position: relative; padding: 25px; display: flex; flex-direction: column; flex-wrap: wrap; align-content: flex-start; gap: 25px; }
+        .icon { width: 90px; text-align: center; cursor: pointer; transition: 0.2s; z-index: 5; }
+        .icon:hover { transform: translateY(-5px); }
+        .icon-img { width: 55px; height: 55px; background: rgba(255,255,255,0.05); border-radius: 14px; margin: 0 auto 8px; display: flex; align-items: center; justify-content: center; font-size: 26px; border: 1px solid #333; backdrop-filter: blur(5px); }
+        .icon span { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: #bbb; }
+
+        /* BARRA DE TAREAS */
+        .taskbar { height: 40px; background: rgba(0,0,0,0.9); border-top: 1px solid #333; position: fixed; bottom: 0; width: 100%; display: flex; align-items: center; padding: 0 15px; gap: 20px; z-index: 10000; }
+        .taskbar-brand { font-weight: 900; color: #fff; letter-spacing: 1px; font-size: 13px; margin-right: 10px; }
+        .taskbar-stat { font-size: 11px; font-weight: 900; color: var(--accent); background: rgba(0,255,65,0.1); padding: 4px 10px; border-radius: 20px; }
+
+        /* VENTANAS */
+        .window { position: absolute; background: var(--win-bg); border-radius: 12px; border: 1px solid var(--border); display: none; flex-direction: column; min-width: 320px; box-shadow: 0 25px 50px rgba(0,0,0,0.8); overflow: hidden; resize: both; z-index: 10; }
+        .win-header { background: #1a1a1a; padding: 12px 15px; cursor: move; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #222; }
+        .win-title { font-size: 10px; font-weight: 900; text-transform: uppercase; color: #888; letter-spacing: 1px; }
+        .win-close { cursor: pointer; color: #ff4444; font-weight: bold; font-size: 18px; line-height: 1; }
+        .win-content { padding: 20px; flex: 1; overflow-y: auto; }
+
+        /* COMPONENTES */
+        button { background: #222; color: white; border: 1px solid #333; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: bold; font-family: inherit; transition: 0.2s; }
+        button:hover { border-color: var(--accent); color: var(--accent); background: #1a1a1a; }
+        .opt-btn { width: 100%; text-align: left; margin: 8px 0; padding: 14px; font-size: 13px; line-height: 1.4; }
+
+        /* JUEGOS */
+        #fCanvas { background: #000; width: 100%; height: 220px; border-radius: 8px; border: 1px solid #222; }
+        #hack-out { font-family: monospace; font-size: 10px; color: var(--accent); height: 160px; overflow-y: hidden; background: #000; padding: 10px; border-radius: 6px; }
+        
+        #run-box { width: 100%; height: 120px; background: #000; position: relative; overflow: hidden; border: 1px solid #222; border-radius: 8px; }
+        #run-player { position: absolute; bottom: 10px; left: 30px; font-size: 30px; transition: 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28); }
+    </style>
+</head>
+<body>
+
+<div class="desktop" id="desktop">
+    <div class="icon" onclick="openWin('decisiones')"><div class="icon-img">🧠</div><span>Estatus</span></div>
+    <div class="icon" onclick="openWin('clicker')"><div class="icon-img">💰</div><span>Clicker</span></div>
+    <div class="icon" onclick="openWin('flappy')"><div class="icon-img">🐦</div><span>Flappy</span></div>
+    <div class="icon" onclick="openWin('runner')"><div class="icon-img">🏃</div><span>Runner</span></div>
+    <div class="icon" onclick="openWin('hacker')"><div class="icon-img">💻</div><span>Terminal</span></div>
+</div>
+
+<div class="taskbar">
+    <div class="taskbar-brand">SIGMA FUN</div>
+    <div class="taskbar-stat">🧠 <span id="st-mente">50</span></div>
+    <div class="taskbar-stat">💰 <span id="st-dinero">50</span></div>
+    <div class="taskbar-stat">😎 <span id="st-respeto">50</span></div>
+</div>
+
+<div class="window" id="win-decisiones" style="top:60px; left:350px; width:420px">
+    <div class="win-header"><span class="win-title">Camino Sigma</span><span class="win-close" onclick="closeWin('decisiones')">×</span></div>
+    <div class="win-content">
+        <div id="dec-game">
+            <p id="dec-day" style="font-size:11px; color:var(--accent); font-weight:900; margin-bottom:5px;">DÍA 1 - DECISIÓN 1/3</p>
+            <h3 id="dec-text" style="margin-top:0; font-size:18px;">Cargando situación...</h3>
+            <div id="dec-options"></div>
+        </div>
+        <div id="dec-result" style="display:none; text-align:center">
+            <h2 style="color:var(--accent)">Día Finalizado</h2>
+            <p id="dec-rank" style="font-weight:bold; font-size:20px; margin:20px 0;"></p>
+            <button onclick="nextDay()" style="width:100%">Comenzar Siguiente Día</button>
+        </div>
+    </div>
+</div>
+
+<div class="window" id="win-clicker" style="top:120px; left:60px; width:300px">
+    <div class="win-header"><span class="win-title">Money Clicker</span><span class="win-close" onclick="closeWin('clicker')">×</span></div>
+    <div class="win-content" style="text-align:center">
+        <div id="cli-face" style="font-size:60px; cursor:pointer; margin-bottom:15px; display:inline-block;" onclick="clickMoney()">🗿</div>
+        <h2 id="cli-money" style="font-size:32px; margin:0 0 15px 0;">$0</h2>
+        <button id="cli-up" onclick="upgradeClick()" style="width:100%">Mejorar Clic ($15)</button>
+    </div>
+</div>
+
+<div class="window" id="win-flappy" style="top:100px; left:800px; width:450px">
+    <div class="win-header"><span class="win-title">Flappy Sigma</span><span class="win-close" onclick="closeWin('flappy')">×</span></div>
+    <div class="win-content">
+        <canvas id="fCanvas" width="800" height="400"></canvas>
+        <div style="margin-top:12px; display:flex; gap:8px">
+            <button onclick="fMode='play'" style="flex:1">Jugar</button>
+            <button onclick="fMode='edit'" style="flex:1">Editor</button>
+            <button onclick="resetPipes()" style="background:#400">Limpiar</button>
+        </div>
+    </div>
+</div>
+
+<div class="window" id="win-runner" style="top:400px; left:100px; width:400px">
+    <div class="win-header"><span class="win-title">Grind Runner</span><span class="win-close" onclick="closeWin('runner')">×</span></div>
+    <div class="win-content" style="text-align:center">
+        <div id="run-box">
+            <div id="run-player">🗿</div>
+        </div>
+        <button onclick="jumpRunner()" style="width:100%; margin-top:15px; padding:15px;">SALTAR (GRIND)</button>
+    </div>
+</div>
+
+<div class="window" id="win-hacker" style="top:400px; left:550px; width:380px">
+    <div class="win-header"><span class="win-title">Sigma Terminal</span><span class="win-close" onclick="closeWin('hacker')">×</span></div>
+    <div class="win-content">
+        <div id="hack-out"></div>
+        <input type="text" id="hack-in" oninput="hackType()" placeholder="Escribe aquí para hackear..." style="width:100%; background:black; border:1px solid #333; color:var(--accent); padding:10px; margin-top:10px; border-radius:6px; font-family:monospace;">
+    </div>
+</div>
+
+<script>
+    // --- LÓGICA DE VENTANAS ---
+    function openWin(id) { 
+        const win = document.getElementById('win-'+id);
+        win.style.display = 'flex';
+        win.style.zIndex = Math.max(...Array.from(document.querySelectorAll('.window')).map(w => w.style.zIndex || 0)) + 1;
+    }
+    function closeWin(id) { document.getElementById('win-'+id).style.display = 'none'; }
+
+    document.querySelectorAll('.win-header').forEach(header => {
+        header.onmousedown = function(e) {
+            let win = header.parentElement;
+            win.style.zIndex = 1000;
+            let shiftX = e.clientX - win.getBoundingClientRect().left;
+            let shiftY = e.clientY - win.getBoundingClientRect().top;
+            function moveAt(pageX, pageY) {
+                win.style.left = pageX - shiftX + 'px';
+                win.style.top = pageY - shiftY + 'px';
+            }
+            function onMouseMove(e) { moveAt(e.pageX, e.pageY); }
+            document.addEventListener('mousemove', onMouseMove);
+            document.onmouseup = () => { document.removeEventListener('mousemove', onMouseMove); };
+        };
+    });
+
+    // --- ESTADO Y GUARDADO ---
+    let state = JSON.parse(localStorage.getItem('sigmaFun_v2')) || {
+        mente: 50, dinero: 50, respeto: 50,
+        clickVal: 1, clickCost: 15,
+        day: 1, step: 1, pipes: []
+    };
+
+    function save() {
+        localStorage.setItem('sigmaFun_v2', JSON.stringify(state));
+        document.getElementById('st-mente').innerText = state.mente;
+        document.getElementById('st-dinero').innerText = state.dinero;
+        document.getElementById('st-respeto').innerText = state.respeto;
+        document.getElementById('cli-money').innerText = "$" + state.dinero;
+        document.getElementById('cli-up').innerText = `Mejorar Clic ($${state.clickCost})`;
+        checkDeath();
+    }
+
+    function checkDeath() {
+        if(state.mente < 20 || state.dinero < 20 || state.respeto < 20) {
+            alert("ESTATUS PERDIDO: Una de tus estadísticas bajó de 20. El camino Sigma requiere equilibrio.");
+            state = { mente: 50, dinero: 50, respeto: 50, clickVal: 1, clickCost: 15, day: 1, step: 1, pipes: [] };
+            save();
+            location.reload();
+        }
+    }
+
+    // --- DECISIONES (3 POR DÍA) ---
+    const situaciones = [
+        { q: "Te provocan en público para un video de broma.", o: [
+            { t: "Respondes con insulto", m: -10, d: 0, r: 5 },
+            { t: "Te ríes y sigues caminando", m: 10, d: 0, r: 0 },
+            { t: "Ignoras completamente (Frame Perfecto)", m: 0, d: 0, r: 15 }
+        ]},
+        { q: "Un antiguo socio te pide 'un favor' poco ético.", o: [
+            { t: "Aceptas por el dinero rápido", m: -15, d: 50, r: -10 },
+            { t: "Rechazas y le das un sermón", m: 5, d: 0, r: 10 },
+            { t: "Lo bloqueas sin decir nada", m: 10, d: 0, r: 15 }
+        ]},
+        { q: "Tu inversión en Crypto cae un 90%.", o: [
+            { t: "Vendes en pánico", m: -20, d: -20, r: -10 },
+            { t: "Hold hasta el final", m: 15, d: 0, r: 10 },
+            { t: "Compras más barato", m: -5, d: -10, r: 20 }
+        ]}
+    ];
+
+    function loadDec() {
+        if(state.step > 3) {
+            document.getElementById('dec-game').style.display = 'none';
+            document.getElementById('dec-result').style.display = 'block';
+            let total = state.mente + state.dinero + state.respeto;
+            let rank = "GRIND PRINCIPIANTE";
+            if(state.respeto >= 100) rank = "SIGMA RECONOCIDO";
+            if(total >= 150) rank = "SIGMA ÉLITE";
+            if(total >= 200) rank = "LEYENDA SIGMA";
+            document.getElementById('dec-rank').innerText = `${rank}\nTotal: ${total}`;
+            return;
+        }
+        let s = situaciones[Math.floor(Math.random()*situaciones.length)];
+        document.getElementById('dec-day').innerText = `DÍA ${state.day} - DECISIÓN ${state.step}/3`;
+        document.getElementById('dec-text').innerText = s.q;
+        document.getElementById('dec-options').innerHTML = s.o.map(o => 
+            `<button class="opt-btn" onclick="applyDec(${o.m}, ${o.d}, ${o.r})">${o.t}</button>`
+        ).join('');
+    }
+
+    function applyDec(m, d, r) {
+        state.mente += m; state.dinero += d; state.respeto += r;
+        state.step++; save(); loadDec();
+    }
+
+    function nextDay() {
+        state.day++; state.step = 1;
+        document.getElementById('dec-game').style.display = 'block';
+        document.getElementById('dec-result').style.display = 'none';
+        save(); loadDec();
+    }
+
+    // --- CLICKER ---
+    function clickMoney() { state.dinero += state.clickVal; save(); }
+    function upgradeClick() {
+        if(state.dinero >= state.clickCost) {
+            state.dinero -= state.clickCost; state.clickVal++; state.clickCost *= 2; save();
+        }
+    }
+
+    // --- FLAPPY ---
+    const canvas = document.getElementById('fCanvas');
+    const ctx = canvas.getContext('2d');
+    let fMode = 'edit', birdY = 150, birdV = 0;
+
+    canvas.onmousedown = (e) => {
+        if(fMode == 'edit') {
+            const r = canvas.getBoundingClientRect();
+            state.pipes.push({ x: (e.clientX - r.left)*2, h: (e.clientY - r.top)*2 });
+        } else birdV = -9;
+    };
+    function resetPipes() { state.pipes = []; save(); }
+
+    function updateFlappy() {
+        ctx.fillStyle = "black"; ctx.fillRect(0,0,800,400);
+        ctx.fillStyle = "red";
+        state.pipes.forEach(p => {
+            ctx.fillRect(p.x, 0, 40, p.h);
+            ctx.fillRect(p.x, p.h + 130, 40, 400);
+            if(fMode == 'play') {
+                p.x -= 4; if(p.x < -40) p.x = 800;
+                if(120 > p.x && 80 < p.x + 40 && (birdY < p.h || birdY > p.h + 130)) birdY = 200;
+            }
+        });
+        ctx.font = "40px Arial"; ctx.fillText("🗿", 80, birdY);
+        if(fMode == 'play') { birdV += 0.5; birdY += birdV; if(birdY > 400 || birdY < 0) birdY = 200; }
+        requestAnimationFrame(updateFlappy);
+    }
+
+    // --- TERMINAL ---
+    function hackType() {
+        let out = document.getElementById('hack-out');
+        const lines = ["> ACCESSING...", "> BYPASSING FIREWALL...", "> SIGMA_CORE_V2 FOUND", "> INJECTING CAPITAL..."];
+        out.innerHTML += `<div>${lines[Math.floor(Math.random()*lines.length)]}</div>`;
+        out.scrollTop = out.scrollHeight;
+        if(Math.random() > 0.92) { state.dinero += 2; save(); }
+    }
+
+    // --- RUNNER ---
+    function jumpRunner() {
+        const p = document.getElementById('run-player');
+        p.style.bottom = "80px";
+        setTimeout(() => p.style.bottom = "10px", 400);
+    }
+
+    save(); loadDec(); updateFlappy();
+</script>
+</body>
 </html>
+
