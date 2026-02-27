@@ -3,261 +3,206 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sigma Fun | The Grind Collection</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    <title>🗿 SIGMA PATH: The Daily Grind</title>
     <style>
-        :root { --bg: #ffffff; --fg: #000000; --accent: #00ff41; --gray: #f0f0f2; --border: #e0e0e0; }
-        [data-theme="dark"] { --bg: #0b0b0b; --fg: #ffffff; --gray: #1a1a1a; --border: #333; }
-
-        * { box-sizing: border-box; transition: 0.2s; }
-        body { 
-            font-family: 'Inter', sans-serif; background: var(--bg); color: var(--fg);
-            margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center;
+        body {
+            background-color: #121212;
+            color: #e0e0e0;
+            font-family: 'Courier New', Courier, monospace;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
         }
 
-        /* HEADER & STATS */
-        header { text-align: center; margin-bottom: 40px; }
-        h1 { font-size: 60px; font-weight: 900; margin: 0; letter-spacing: -3px; }
+        #game-container {
+            background-color: #1e1e1e;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+        }
+
+        h1 { color: #fff; text-transform: uppercase; letter-spacing: 2px; }
         
-        .stats-container {
-            display: flex; gap: 15px; margin-top: 20px; position: sticky; top: 20px; z-index: 100;
-            background: var(--bg); padding: 10px 25px; border-radius: 50px; border: 2px solid var(--border);
+        #stats {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 20px;
+            font-weight: bold;
+            font-size: 1.2em;
         }
 
-        /* GRID LAYOUT (Estilo Neal.fun) */
-        .grid-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-            gap: 25px; max-width: 1200px; width: 100%; margin-top: 20px;
+        .stat-box {
+            background: #333;
+            padding: 10px;
+            border-radius: 5px;
+            width: 30%;
         }
 
-        .card {
-            background: var(--gray); border: 2px solid var(--border);
-            border-radius: 24px; padding: 30px; display: flex; flex-direction: column;
-            align-items: center; justify-content: space-between; min-height: 400px;
+        #situation {
+            font-size: 1.3em;
+            margin-bottom: 30px;
+            min-height: 60px;
         }
 
-        .card h2 { margin-top: 0; font-weight: 900; font-size: 24px; text-transform: uppercase; }
-
-        /* TIENDA & CLICKER */
-        .click-area { font-size: 80px; cursor: pointer; user-select: none; }
-        .click-area:active { transform: scale(0.9); }
-        .shop-item {
-            width: 100%; background: var(--bg); border: 1px solid var(--border);
-            padding: 10px; border-radius: 12px; margin: 5px 0; display: flex; justify-content: space-between;
-            font-weight: bold; cursor: pointer;
+        .option-btn {
+            background-color: #333;
+            color: white;
+            border: 2px solid #555;
+            padding: 15px;
+            margin: 10px 0;
+            width: 100%;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: all 0.3s;
+            font-size: 1em;
         }
-        .shop-item:hover { border-color: var(--accent); }
 
-        /* ACCIONES (STOCKS) */
-        .stock-price { font-size: 32px; font-weight: 900; color: var(--accent); }
-
-        /* BUTTONS */
-        .btn {
-            background: var(--fg); color: var(--bg); border: none;
-            padding: 12px 24px; border-radius: 12px; font-weight: 800; cursor: pointer;
-            width: 100%; margin-top: 10px;
+        .option-btn:hover {
+            background-color: #555;
+            border-color: #fff;
         }
-        .btn:disabled { opacity: 0.3; }
 
-        .theme-toggle { position: fixed; bottom: 20px; right: 20px; cursor: pointer; font-size: 30px; }
-
+        #log {
+            margin-top: 20px;
+            font-size: 0.9em;
+            color: #aaa;
+            height: 100px;
+            overflow-y: auto;
+            border-top: 1px solid #333;
+            padding-top: 10px;
+        }
     </style>
 </head>
-<body data-theme="light">
+<body>
 
-<header>
-    <h1>SIGMA FUN</h1>
-    <div class="stats-container">
-        <span>🧠 <b id="st-mente">50</b></span>
-        <span>💰 $<b id="st-dinero">100</b></span>
-        <span>😎 <b id="st-respeto">50</b></span>
+<div id="game-container">
+    <h1>🗿 SIGMA PATH</h1>
+    <div id="stats">
+        <div class="stat-box">🧠 Mente: <span id="mente">50</span></div>
+        <div class="stat-box">💰 Dinero: <span id="dinero">50</span></div>
+        <div class="stat-box">😎 Respeto: <span id="respeto">50</span></div>
     </div>
-</header>
-
-<div class="grid-container">
     
-    <div class="card">
-        <h2>Sigma Clicker</h2>
-        <div class="click-area" onclick="handleSigmaClick()">🗿</div>
-        <div style="width: 100%;">
-            <div class="shop-item" onclick="buyUpgrade('clickPower', 50)">
-                <span>Mejorar Click (+1)</span> <span>$50</span>
-            </div>
-            <div class="shop-item" onclick="buyUpgrade('autoGrind', 200)">
-                <span>Auto-Grind (+$1/s)</span> <span>$200</span>
-            </div>
-        </div>
-        <p>Poder de click: <span id="click-val">1</span></p>
+    <div id="game-area">
+        <p id="situation">Cargando situación...</p>
+        <button class="option-btn" onclick="seleccionar(0)" id="btn0">Opción A</button>
+        <button class="option-btn" onclick="seleccionar(1)" id="btn1">Opción B</button>
+        <button class="option-btn" onclick="seleccionar(2)" id="btn2">Opción C</button>
     </div>
 
-    <div class="card">
-        <h2>Gastar Fortuna</h2>
-        <div style="font-size: 40px;">💸</div>
-        <p id="bezos-money" style="font-size: 24px; font-weight: 900;">$200,000,000,000</p>
-        <div style="width: 100%;">
-            <button class="btn" onclick="spendBezos(15, 'Hamburgesa')">🍔 Hamburguesa ($15)</button>
-            <button class="btn" onclick="spendBezos(3000000, 'Bugatti')">🏎️ Bugatti ($3M)</button>
-            <button class="btn" onclick="spendBezos(100000000, 'Equipo de Fútbol')">⚽ Equipo ($100M)</button>
-        </div>
-    </div>
-
-    <div class="card">
-        <h2>Sigma Stocks</h2>
-        <p>Invierte tus ahorros</p>
-        <div class="stock-price" id="stock-val">$100</div>
-        <p>Posees: <span id="stock-owned">0</span></p>
-        <div style="width: 100%; display: flex; gap: 10px;">
-            <button class="btn" onclick="buyStock()">Comprar</button>
-            <button class="btn" onclick="sellStock()">Vender</button>
-        </div>
-    </div>
-
-    <div class="card" id="dec-card">
-        <h2>Decisiones</h2>
-        <p id="dec-q" style="font-weight: bold; text-align: center;">¿Qué harás hoy?</p>
-        <div id="dec-options" style="width: 100%;"></div>
-    </div>
-
-    <div class="card">
-        <h2>Sigma Excuse</h2>
-        <p>Evita perder tiempo en fiestas</p>
-        <div id="excuse-text" style="background: var(--bg); padding: 15px; border-radius: 10px; font-style: italic;">
-            "Tengo que devolver unas cintas de vídeo."
-        </div>
-        <button class="btn" onclick="generateExcuse()">Generar Excusa</button>
-    </div>
-
+    <div id="log"></div>
 </div>
 
-<div class="theme-toggle" onclick="toggleTheme()">🌓</div>
-
 <script>
-    let state = {
-        mente: 50, dinero: 100, respeto: 50,
-        bezos: 200000000000, 
-        clickPower: 1, autoGrind: 0,
-        stockPrice: 100, stocksOwned: 0
-    };
+    // ESTADO DEL JUEGO
+    let stats = { mente: 50, dinero: 50, respeto: 50 };
+    let decisionesHoy = 0;
+    let dia = 1;
 
-    // --- LÓGICA CORE ---
-    function updateUI() {
-        document.getElementById('st-mente').innerText = state.mente;
-        document.getElementById('st-dinero').innerText = state.dinero;
-        document.getElementById('st-respeto').innerText = state.respeto;
-        document.getElementById('bezos-money').innerText = "$" + state.bezos.toLocaleString();
-        document.getElementById('click-val').innerText = state.clickPower;
-        document.getElementById('stock-val').innerText = "$" + state.stockPrice;
-        document.getElementById('stock-owned').innerText = state.stocksOwned;
-    }
-
-    // --- CLICKER & TIENDA ---
-    function handleSigmaClick() {
-        state.dinero += state.clickPower;
-        updateUI();
-    }
-
-    function buyUpgrade(type, cost) {
-        if (state.dinero >= cost) {
-            state.dinero -= cost;
-            if (type === 'clickPower') state.clickPower += 1;
-            if (type === 'autoGrind') state.autoGrind += 1;
-            updateUI();
-        } else {
-            alert("No tienes suficiente dinero. Sigue el grind.");
-        }
-    }
-
-    // --- STOCKS (ACCIONES) ---
-    function updateStocks() {
-        let change = Math.floor(Math.random() * 40) - 20;
-        state.stockPrice = Math.max(10, state.stockPrice + change);
-        updateUI();
-    }
-    setInterval(updateStocks, 3000);
-
-    function buyStock() {
-        if (state.dinero >= state.stockPrice) {
-            state.dinero -= state.stockPrice;
-            state.stocksOwned++;
-            updateUI();
-        }
-    }
-
-    function sellStock() {
-        if (state.stocksOwned > 0) {
-            state.dinero += state.stockPrice;
-            state.stocksOwned--;
-            updateUI();
-        }
-    }
-
-    // --- SPEND BEZOS ---
-    function spendBezos(amount, item) {
-        if (state.bezos >= amount) {
-            state.bezos -= amount;
-            state.respeto += 5;
-            updateUI();
-        }
-    }
-
-    // --- EXCUSAS ---
-    const excuses = [
-        "Tengo que devolver unas cintas de vídeo.",
-        "Mi rutina de cuidado facial dura 4 horas.",
-        "Estoy analizando el mercado de criptomonedas de Lituania.",
-        "No puedo, estoy en modo monje.",
-        "El grind no descansa, yo tampoco.",
-        "Tengo una reunión con mi yo del futuro."
-    ];
-    function generateExcuse() {
-        const text = excuses[Math.floor(Math.random() * excuses.length)];
-        document.getElementById('excuse-text').innerText = `"${text}"`;
-        state.mente += 2;
-        updateUI();
-    }
-
-    // --- DECISIONES ---
-    const questions = [
-        { q: "Un amigo te pide dinero prestado.", o: [
-            { t: "No tengo amigos. (R+10)", m: 5, r: 10, d: 0 },
-            { t: "Se lo das. (D-50, R-5)", m: 0, r: -5, d: -50 }
-        ]},
-        { q: "Son las 4:00 AM.", o: [
-            { t: "Ducha fría y trabajo. (M+10, D+10)", m: 10, r: 5, d: 10 },
-            { t: "5 minutos más. (M-10)", m: -10, r: 0, d: 0 }
-        ]}
+    // BASE DE DATOS DE SITUACIONES (30 situaciones con efectos ocultos)
+    const situaciones = [
+        { q: "Un compañero se atribuye el mérito de tu proyecto.", a: ["Confrontarlo directamente.", "Exponerlo ante el jefe con sutileza.", "Ignorarlo, tu trabajo habla solo."], e: [[-10, 0, 15], [10, 5, 5], [15, 0, -5]] },
+        { q: "Te ofrecen un puesto inferior pero con mejor horario.", a: ["Aceptar para tener más tiempo.", "Rechazar y pedir aumento.", "Ignorar la oferta."], e: [[-10, 10, 0], [10, 20, 5], [5, 0, 5]] },
+        { q: "Descubres cómo reducir costos ilegalmente.", a: ["Reportarlo a RRHH.", "Quedarse callado y pedir bono.", "Renunciar inmediatamente."], e: [[15, -10, 10], [-20, 30, -15], [20, -20, 20]] },
+        { q: "Tu jefe pide trabajar el finde sin pago.", a: ["Decir que tienes planes.", "Aceptar por compromiso extremo.", "Negociar intercambio de días."], e: [[10, -5, 5], [-15, 10, 15], [5, 5, 5]] },
+        { q: "Un inversor duda de tu idea.", a: ["Enfadarse y terminar la reunión.", "Mantener la calma y presentar datos.", "Buscar otro inversor."], e: [[-20, -10, -10], [10, 5, 10], [5, 0, 5]] },
+        { q: "Te sientes enfermo, pero toca entrenar.", a: ["Ir al gimnasio igual.", "Descansar y tomar vitaminas.", "Sesión de meditación."], e: [[-10, 0, 20], [15, 0, -5], [10, 0, 0]] },
+        { q: "Amigo te invita a beber un martes.", a: ["Aceptar y descontrolarse.", "Ir y tomar solo agua.", "Rechazar y leer."], e: [[-15, -10, -5], [5, 0, 10], [10, 0, 5]] },
+        { q: "Pasaste 4 horas en redes sociales.", a: ["Borrar las aplicaciones.", "Castigarse sin pantallas.", "Hacer lista de tareas."], e: [[20, 0, 0], [10, 0, 5], [5, 0, 0]] },
+        { q: "Buffet libre de comida basura.", a: ["Comer hasta no poder más.", "Comer solo lo necesario.", "Irse y comer ensalada."], e: [[-10, 5, -5], [5, 0, 0], [10, -5, 5]] },
+        { q: "Ansioso antes de meditar.", a: ["Meditar el doble.", "Cancelar para trabajar.", "Ejercicio intenso."], e: [[15, 0, 0], [-5, 10, -5], [5, 0, 5]] },
+        { q: "Insultan tu opinión en internet.", a: ["Argumento lógico y frío.", "Ignorar por completo.", "Insultar de vuelta."], e: [[10, 0, 5], [15, 0, 0], [-10, 0, 10]] },
+        { q: "Consejo sobre relación tóxica.", a: ["Decir que rompan ya.", "Escuchar sin opinar.", "Decir que cada uno se solucione."], e: [[5, 0, 5], [5, 0, 0], [10, 0, -5]] },
+        { q: "Presión de grupo para algo arriesgado.", a: ["Irse sin decir nada.", "Mirar fijo y decir 'no'.", "Acceder para encajar."], e: [[5, 0, 5], [15, 0, 5], [-20, 0, -10]] },
+        { q: "Cruzas con rival exitoso.", a: ["Felicitar sinceramente.", "Ignorar su presencia.", "Presumir tus logros."], e: [[10, 0, 10], [5, 0, 5], [-5, 0, 5]] },
+        { q: "Familiar pide ayuda mudanza domingo.", a: ["Ayudar 3 horas y irse.", "Negarse y trabajar.", "Contratar empresa de mudanza."], e: [[0, -5, 10], [10, 10, -5], [-10, 15, 5]] },
+        { q: "Libro técnico difícil.", a: ["Cerrar libro y ver película.", "Obligarse a leer 50 páginas.", "Buscar resumen en vídeo."], e: [[-10, 0, -5], [15, 5, 0], [0, 0, 0]] },
+        { q: "Habilidad nueva y compleja.", a: ["Aceptar el reto.", "Quedarse en zona de confort.", "Investigar si vale la pena."], e: [[10, 0, 5], [-10, 0, -5], [5, 0, 0]] },
+        { q: "Pensamiento negativo trabajando.", a: ["Parar y analizar.", "Enfocarse obsesivamente.", "Llamar para desahogarse."], e: [[10, 0, 0], [5, 5, 5], [-5, 0, 0]] },
+        { q: "Noticias de crisis económica.", a: ["Pánico y vender todo.", "Estudiar cómo beneficiarse.", "Ignorar noticias."], e: [[-20, -20, -10], [15, 10, 5], [5, 0, 0]] },
+        { q: "Fiesta donde no conoces a nadie.", a: ["No ir.", "Ir y quedarse en una esquina.", "Ir y hacer contactos."], e: [[5, 0, 0], [-5, 0, -5], [10, 5, 10]] },
+        { q: "Niño se burla en la calle.", a: ["Reírse con él.", "Ignorar con superioridad.", "Responder a su nivel."], e: [[5, 0, 0], [10, 0, 5], [-15, 0, -10]] },
+        { q: "Lotería ganadora encontrada.", a: ["Buscar al dueño.", "Cobrar dinero en silencio.", "Donar a caridad."], e: [[20, -10, 10], [-10, 30, -5], [15, -15, 5]] },
+        { q: "Coche roto antes de reunión.", a: ["Tomar taxi y calmarse.", "Enfadarse y cancelar.", "Arreglarlo tú mismo."], e: [[0, -10, 5], [-10, -5, -10], [10, -5, 5]] },
+        { q: "Ser influencer de producto basura.", a: ["Aceptar por dinero.", "Rechazar por principios.", "Aceptar y criticarlo."], e: [[-10, 20, -10], [10, -5, 10], [5, 10, -5]] },
+        { q: "Extraño pide tu móvil.", a: ["Prestar amablemente.", "Negarse tajantemente.", "Quedarse al lado."], e: [[-5, 0, 5], [5, 0, 5], [0, 0, 10]] },
+        { q: "Club exclusivo de élite.", a: ["Aceptar para networking.", "Rechazar por superficial.", "Ir solo para demostrar."], e: [[5, 5, 10], [10, 0, 0], [0, -5, 5]] },
+        { q: "Regalo que no te gusta.", a: ["Decir la verdad.", "Agradecer falso y tirar.", "Guardar por respeto."], e: [[-5, 0, 5], [-10, 0, 0], [5, 0, 0]] },
+        { q: "Vecino ruidoso 3 AM.", a: ["Llamar a la policía.", "Golpear su puerta.", "Tapones y dormir."], e: [[0, 0, 10], [-5, 0, 5], [5, 0, 0]] },
+        { q: "Trabajo en otro país.", a: ["Ir sin dudar.", "Rechazar por miedo.", "Negociar remoto."], e: [[5, 20, 5], [-10, 0, -10], [10, 10, 5]] },
+        { q: "Perdiste la billetera.", a: ["Entrar en pánico.", "Bloquear tarjetas y seguir.", "Enfadarse contigo."], e: [[-20, -10, -10], [10, 0, 5], [-5, 0, 0]] }
     ];
 
-    function renderDec() {
-        let s = questions[Math.floor(Math.random() * questions.length)];
-        document.getElementById('dec-q').innerText = s.q;
-        document.getElementById('dec-options').innerHTML = s.o.map(o => 
-            `<button class="btn" onclick="applyDec(${o.m}, ${o.r}, ${o.d})">${o.t}</button>`
-        ).join('');
-    }
+    let situacionActual = null;
 
-    function applyDec(m, r, d) {
-        state.mente += m; state.respeto += r; state.dinero += d;
-        updateUI();
-        renderDec();
-    }
-
-    // --- OTROS ---
-    function toggleTheme() {
-        const b = document.body;
-        b.dataset.theme = b.dataset.theme === "dark" ? "light" : "dark";
-    }
-
-    setInterval(() => {
-        if (state.autoGrind > 0) {
-            state.dinero += state.autoGrind;
-            updateUI();
+    function cargarSituacion() {
+        if (decisionesHoy >= 3) {
+            finalizarDia();
+            return;
         }
-    }, 1000);
 
-    updateUI();
-    renderDec();
+        situacionActual = situaciones[Math.floor(Math.random() * situaciones.length)];
+        document.getElementById('situation').innerText = situacionActual.q;
+        document.getElementById('btn0').innerText = situacionActual.a[0];
+        document.getElementById('btn1').innerText = situacionActual.a[1];
+        document.getElementById('btn2').innerText = situacionActual.a[2];
+    }
+
+    function seleccionar(index) {
+        let efectos = situacionActual.e[index];
+        stats.mente += efectos[0];
+        stats.dinero += efectos[1];
+        stats.respeto += efectos[2];
+        
+        decisionesHoy++;
+        actualizarPantalla();
+        
+        if (checkGameOver()) return;
+        cargarSituacion();
+    }
+
+    function actualizarPantalla() {
+        document.getElementById('mente').innerText = stats.mente;
+        document.getElementById('dinero').innerText = stats.dinero;
+        document.getElementById('respeto').innerText = stats.respeto;
+    }
+
+    function checkGameOver() {
+        if (stats.mente < 20 || stats.dinero < 20 || stats.respeto < 20) {
+            document.getElementById('game-area').innerHTML = "<h2>GAME OVER</h2><p>Perdiste tu enfoque. Un verdadero Sigma no se rinde.</p><button class='option-btn' onclick='location.reload()'>Reiniciar</button>";
+            return true;
+        }
+        return false;
+    }
+
+    function finalizarDia() {
+        let total = stats.mente + stats.dinero + stats.respeto;
+        let rango = "";
+        
+        if (stats.respeto >= 100) rango = "Sigma reconocido 🗿";
+        else if (total >= 200) rango = "Leyenda Sigma 🏆";
+        else if (total >= 150) rango = "Sigma Élite ✨";
+        else rango = "NPC Promedio 📉";
+
+        document.getElementById('game-area').innerHTML = `<h2>Día ${dia} Finalizado</h2><p>Puntos Totales: ${total}</p><p>Rango: <strong>${rango}</strong></p><button class='option-btn' onclick='siguienteDia()'>Siguiente Día</button>`;
+    }
+
+    function siguienteDia() {
+        dia++;
+        decisionesHoy = 0;
+        document.getElementById('game-area').innerHTML = `<p id="situation"></p><button class="option-btn" onclick="seleccionar(0)" id="btn0"></button><button class="option-btn" onclick="seleccionar(1)" id="btn1"></button><button class="option-btn" onclick="seleccionar(2)" id="btn2"></button>`;
+        cargarSituacion();
+    }
+
+    // Iniciar
+    cargarSituacion();
 </script>
 
 </body>
